@@ -1,6 +1,7 @@
 #include <iostream>
 #include <fstream>
 #include <string>
+#include <list>
 #include <getopt.h>
 #include "spdlog/spdlog.h"
 #include "version.h"
@@ -97,5 +98,6 @@ int main(int n, char** args) {
 	circuit* circ = read_input(file);
 
 	spdlog::info("Exiting");
+	delete(circ);
 	return 0;
 }

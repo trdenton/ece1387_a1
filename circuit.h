@@ -1,5 +1,6 @@
 #ifndef __CIRCUIT_H__
 #define __CIRCUIT_H__
+#include <list>
 class connection {
 	public:
 		int x0 = 0, y0 = 0, p0 = 0, x1 = 0, y1 = 0, p1 = 0;
@@ -16,13 +17,23 @@ class connection {
 class circuit {
 	public:
 		int grid_size, tracks_per_channel;
+		std::list<connection*> conns;
 
 		circuit(int gs, int tpc) {
 			grid_size = gs;
 			tracks_per_channel = tpc;
 		}
+		
+		~circuit() {
+			std::list<connection*>::iterator it;
+			for (it = conns.begin(); it != conns.end(); ++it){
+				delete(*it);
+			}
+		}
+
 
 		void add_connection(connection* conn) {
+			conns.push_back(conn);
 		}
 };
 #endif
