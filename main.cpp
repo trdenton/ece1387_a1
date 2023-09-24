@@ -48,6 +48,8 @@ circuit* read_input(string file) {
 				circ->add_connection(conn);
 			}
 		}
+		string conns = circ->dump_connections();
+		spdlog::debug("connection dump:\n{}", conns);
 
 		infile.close();
 	}
@@ -63,7 +65,7 @@ int main(int n, char** args) {
 
 	for(;;)
 	{
-		switch(getopt(n, args, "hf:d")) // note the colon (:) to indicate that 'b' has a parameter and is not a switch
+		switch(getopt(n, args, "hf:d"))
 		{
 			case 'f':
 				file = optarg;
