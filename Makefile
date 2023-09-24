@@ -1,9 +1,8 @@
 CC=/usr/bin/g++
 
 GIT_COMMIT := $(shell git describe --always --dirty)
-CFLAGS=-Wall -DGIT_COMMIT=\"$(GIT_COMMIT)\" -Ispdlog/include -std=c++11
+CFLAGS=-Wall -DGIT_COMMIT=\"$(GIT_COMMIT)\" -Ispdlog/include -std=c++14
 LDFLAGS=-Lspdlog/build/ -lspdlog
-
 
 a1: main.o
 	$(CC) $(LDFLAGS) -o $@ $^
