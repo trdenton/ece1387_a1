@@ -57,7 +57,11 @@ circuit* read_input(string file) {
 }
 
 void print_usage() {
-  cout << "Usage: ./a1 [-h] [-d] -f circuit_file" << endl << endl;
+  cout << "Usage: ./a1 [-hv] [-d] -f circuit_file" << endl;
+  cout << "\t-h: this help message" <<endl;
+  cout << "\t-v: print version info" <<endl;
+  cout << "\t-f circuit_file: the circuit file (required)" <<endl;
+  cout << "\t-d: turn on debug log level" <<endl;
 }
 
 int main(int n, char** args) {
@@ -65,7 +69,7 @@ int main(int n, char** args) {
 
   for(;;)
   {
-    switch(getopt(n, args, "hf:d"))
+    switch(getopt(n, args, "vhf:d"))
     {
       case 'f':
         file = optarg;
@@ -74,6 +78,13 @@ int main(int n, char** args) {
       case 'd':
         spdlog::set_level(spdlog::level::debug);
         continue;
+
+      case 'v':
+        spdlog::info("a1 - Troy Denton 2023");
+        spdlog::info("Version {}.{}", VERSION_MAJOR, VERSION_MINOR);
+        spdlog::info("Commit {}", GIT_COMMIT);
+        spdlog::info("Built {}" , __TIMESTAMP__);
+        return 0;
 
       case '?':
       case 'h':

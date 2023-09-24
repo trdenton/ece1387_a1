@@ -30,6 +30,15 @@ if(NOT TARGET spdlog)
   find_package(spdlog REQUIRED)
 endif()
 
+# the commit's SHA1, and whether the building workspace was dirty or not
+execute_process(COMMAND
+  git describe --match=NeVeRmAtCh --always --abbrev=40 --dirty
+  WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
+  OUTPUT_VARIABLE GIT_COMMIT
+  ERROR_QUIET OUTPUT_STRIP_TRAILING_WHITESPACE)
+
+add_compile_definitions(GIT_COMMIT="${GIT_COMMIT}")
+
 enable_testing()
 
 add_executable(
