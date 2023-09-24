@@ -1,6 +1,7 @@
 #include <iostream>
 #include <fstream>
 #include <string>
+#include "spdlog/spdlog.h"
 #include "version.h"
 
 using namespace std;
@@ -11,6 +12,7 @@ int read_input(string file) {
 	int grid;
 	int tracks_per_channel;
 	ifstream infile (file);
+	spdlog::debug("Reading input file {}", file);
 	if (infile.is_open()) {
 		// first line -  grid size 
 		// second line - tracks per channel
@@ -32,7 +34,7 @@ int read_input(string file) {
 			infile >> x1;
 			infile >> y1;
 			infile >> p1;
-			cout << "x0 " << x0 << " y0 " << y0 << " p0 " << p0 << " x1 " << x1 << " y1 " << y1 << " p1 " << p1 << endl;
+			spdlog::debug("read in x0 {} y0 {} p0 {} x1 {} y1 {} p1 {}", x0, y0, p0, x1, y1, p1);
 
 			all_neg1 = (x0 == -1) && (y0 == -1) && (p0 == -1) && (x1 == -1) && (y1 == -1) && (p1 == -1);
 		}
@@ -44,12 +46,13 @@ int read_input(string file) {
 }
 
 int main(int n, char** args) {
-	cout << "a1 - Troy Denton 2023" << endl;
-	cout << "Version " << VERSION_MAJOR << "." << VERSION_MINOR << endl;
-	cout << "Commit " << GIT_COMMIT << endl;
-	cout << "Built " << __TIMESTAMP__ << endl;
+	spdlog::info("a1 - Troy Denton 2023");
+	spdlog::info("Version {}.{}", VERSION_MAJOR, VERSION_MINOR);
+	spdlog::info("Commit {}", GIT_COMMIT);
+	spdlog::info("Built {}" , __TIMESTAMP__);
 
 
 	read_input("cct1");
+	spdlog::info("Exiting");
 	return 0;
 }
