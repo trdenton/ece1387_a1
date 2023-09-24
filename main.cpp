@@ -1,6 +1,7 @@
 #include <iostream>
 #include <fstream>
 #include <string>
+#include <getopt.h>
 #include "spdlog/spdlog.h"
 #include "version.h"
 
@@ -45,16 +46,50 @@ int read_input(string file) {
 	return 0;
 }
 
+void print_usage() {
+	cout << "Usage: ./a1 [-h] [-d] -f circuit_file" << endl << endl;
+}
+
 int main(int n, char** args) {
+	string file = "";
+
+	for(;;)
+	{
+		switch(getopt(n, args, "hf:d")) // note the colon (:) to indicate that 'b' has a parameter and is not a switch
+		{
+			case 'f':
+				file = optarg;
+				continue;
+
+			case 'd':
+				spdlog::set_level(spdlog::level::debug);
+				continue;
+
+			case '?':
+			case 'h':
+			default :
+				print_usage();
+				return 1;
+
+			case -1:
+				break;
+		}
+		break;
+	}
+
+	if (file == "") {
+		cerr << "Error: must provide input file" << endl;
+		print_usage();
+		return 1;
+	}
+
 	spdlog::info("a1 - Troy Denton 2023");
 	spdlog::info("Version {}.{}", VERSION_MAJOR, VERSION_MINOR);
 	spdlog::info("Commit {}", GIT_COMMIT);
 	spdlog::info("Built {}" , __TIMESTAMP__);
 
-	spdlog::set_level(spdlog::level::debug);
+	read_input(file);
 
-
-	read_input("cct1");
 	spdlog::info("Exiting");
 	return 0;
 }
