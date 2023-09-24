@@ -51,6 +51,8 @@ int main(int n, char** args) {
 	spdlog::info("Commit {}", GIT_COMMIT);
 	spdlog::info("Built {}" , __TIMESTAMP__);
 
+	spdlog::set_level(spdlog::level::debug);
+
 
 	read_input("cct1");
 	spdlog::info("Exiting");
