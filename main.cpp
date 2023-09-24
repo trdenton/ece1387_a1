@@ -4,14 +4,16 @@
 #include <getopt.h>
 #include "spdlog/spdlog.h"
 #include "version.h"
+#include "circuit.h"
 
 using namespace std;
 
 
-int read_input(string file) {
+circuit* read_input(string file) {
 	string line;
 	int grid;
 	int tracks_per_channel;
+	circuit* circ = nullptr;
 	ifstream infile (file);
 	spdlog::debug("Reading input file {}", file);
 	if (infile.is_open()) {
@@ -24,8 +26,9 @@ int read_input(string file) {
 		getline(infile, line);
 		tracks_per_channel = stoi(line);
 
-		// read until we get the final line of all -1's
+		circ = new circuit(grid, tracks_per_channel);
 
+		// read until we get the final line of all -1's
 		int x0 = 0, y0 = 0, p0 = 0, x1 = 0, y1 = 0, p1 = 0;
 		int all_neg1 = 0;
 		while (!all_neg1) {
@@ -38,12 +41,15 @@ int read_input(string file) {
 			spdlog::debug("read in x0 {} y0 {} p0 {} x1 {} y1 {} p1 {}", x0, y0, p0, x1, y1, p1);
 
 			all_neg1 = (x0 == -1) && (y0 == -1) && (p0 == -1) && (x1 == -1) && (y1 == -1) && (p1 == -1);
+			if (!all_neg1) {
+				connection* conn = new connection(x0,y0,p0,x1,y1,p1);
+				circ->add_connection(conn);
+			}
 		}
-
 
 		infile.close();
 	}
-	return 0;
+	return circ;
 }
 
 void print_usage() {
@@ -88,7 +94,7 @@ int main(int n, char** args) {
 	spdlog::info("Commit {}", GIT_COMMIT);
 	spdlog::info("Built {}" , __TIMESTAMP__);
 
-	read_input(file);
+	circuit* circ = read_input(file);
 
 	spdlog::info("Exiting");
 	return 0;
