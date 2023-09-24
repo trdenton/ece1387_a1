@@ -1,7 +1,9 @@
 CC=/usr/bin/g++
 
-CFLAGS=-Wall
+GIT_COMMIT := $(shell git describe --always --dirty)
+CFLAGS=-Wall -DGIT_COMMIT=\"$(GIT_COMMIT)\"
 LDFLAGS=
+
 
 a1: main.o
 	$(CC) $(LDFLAGS) -o $@ $^
