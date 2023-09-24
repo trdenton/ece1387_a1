@@ -29,10 +29,7 @@ class circuit {
     int grid_size, tracks_per_channel;
     list<connection*> conns;
 
-    circuit(int gs, int tpc) {
-      grid_size = gs;
-      tracks_per_channel = tpc;
-    }
+    circuit(string f);
 
     ~circuit() {
       for (auto* conn : conns){
@@ -52,5 +49,6 @@ class circuit {
 
       return outstring.str();
     }
+
 };
 #endif

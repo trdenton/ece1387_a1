@@ -42,22 +42,24 @@ add_compile_definitions(GIT_COMMIT="${GIT_COMMIT}")
 enable_testing()
 
 add_executable(
-  hello_test
-  hello_test.cc
+  file_read_test
+  circuit.cpp
+  file_read_test.cc
 )
 add_executable(
   a1
   main.cpp
+  circuit.cpp
 )
 target_link_libraries(
   a1
   spdlog::spdlog
 )
 target_link_libraries(
-  hello_test
+  file_read_test
   GTest::gtest_main
   spdlog::spdlog
 )
 
 include(GoogleTest)
-gtest_discover_tests(hello_test)
+gtest_discover_tests(file_read_test)
