@@ -1,3 +1,10 @@
+#
+# Taken from gtest example, modified
+#
+#####################################
+
+
+
 cmake_minimum_required(VERSION 3.14)
 project(a1)
 
@@ -30,7 +37,7 @@ if(NOT TARGET spdlog)
   find_package(spdlog REQUIRED)
 endif()
 
-# the commit's SHA1, and whether the building workspace was dirty or not
+# Add git commit history to build output
 execute_process(COMMAND
   git describe --match=NeVeRmAtCh --always --abbrev=40 --dirty
   WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
@@ -41,16 +48,26 @@ add_compile_definitions(GIT_COMMIT="${GIT_COMMIT}")
 
 enable_testing()
 
+#
+# TEST SUITES
+##################
+
 add_executable(
   file_read_test
   circuit.cpp
   file_read_test.cc
 )
+
+#
+# ACTUAL PROGRAM
+##################
+
 add_executable(
   a1
   main.cpp
   circuit.cpp
 )
+
 target_link_libraries(
   a1
   spdlog::spdlog
