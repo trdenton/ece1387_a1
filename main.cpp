@@ -27,6 +27,7 @@ circuit* read_input(string file) {
 		getline(infile, line);
 		tracks_per_channel = stoi(line);
 
+		spdlog::debug("grid size {} tracks per channel {}", grid, tracks_per_channel);
 		circ = new circuit(grid, tracks_per_channel);
 
 		// read until we get the final line of all -1's

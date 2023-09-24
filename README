@@ -1,0 +1,5 @@
+a1 - Troy Denton, 2023
+
+Dependencies:
+- spdlog library (it's a git submodule).  Build per spdlog's instructions, I link against the static .a library
+- gcc/make
