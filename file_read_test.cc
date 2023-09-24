@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include <list>
+#include <vector>
 #include "circuit.h"
 
 // Basic file read sanity checks

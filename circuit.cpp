@@ -2,7 +2,7 @@
 #include <string>
 #include <iostream>
 #include <fstream>
-#include <list>
+#include <vector>
 #include "spdlog/spdlog.h"
 #include "circuit.h"
 
@@ -46,7 +46,22 @@ circuit::circuit(string file) {
     spdlog::debug("connection dump:\n{}", conns);
 
     infile.close();
+
+    allocate_blocks();
   } else {
     spdlog::error("Could not open {}", file);
   }
+}
+
+void circuit::allocate_blocks() {
+
+  for(int i = 0; i < grid_size*grid_size; ++i) {
+    logic_block* lb = new logic_block(i, grid_size, tracks_per_channel);
+    logic_blocks.push_back(lb);
+  }
+
+  for(int i = 0; i < (grid_size-1)*(grid_size-1); ++i) {
+    switch_blocks.push_back(new switch_block());
+  }
+
 }

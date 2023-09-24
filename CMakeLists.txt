@@ -53,9 +53,10 @@ enable_testing()
 ##################
 
 add_executable(
-  file_read_test
+  data_init_tests
   circuit.cpp
   file_read_test.cc
+  data_init_test.cc
 )
 
 #
@@ -73,10 +74,10 @@ target_link_libraries(
   spdlog::spdlog
 )
 target_link_libraries(
-  file_read_test
+  data_init_tests
   GTest::gtest_main
   spdlog::spdlog
 )
 
 include(GoogleTest)
-gtest_discover_tests(file_read_test)
+gtest_discover_tests(data_init_tests)
