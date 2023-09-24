@@ -36,6 +36,14 @@ add_executable(
   hello_test
   hello_test.cc
 )
+add_executable(
+  a1
+  main.cpp
+)
+target_link_libraries(
+  a1
+  spdlog::spdlog
+)
 target_link_libraries(
   hello_test
   GTest::gtest_main
