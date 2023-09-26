@@ -6,6 +6,7 @@
 #include "spdlog/spdlog.h"
 #include "version.h"
 #include "circuit.h"
+#include "easygl/graphics.h"
 
 using namespace std;
 

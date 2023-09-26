@@ -17,7 +17,6 @@ FetchContent_Declare(
   googletest
   URL https://github.com/google/googletest/archive/03597a01ee50ed33e9dfd640b249b4be3799d395.zip
 )
-include(FetchContent)
 FetchContent_Declare(
   spdlog
   GIT_REPOSITORY https://github.com/gabime/spdlog.git
@@ -26,6 +25,10 @@ FetchContent_Declare(
 # For Windows: Prevent overriding the parent project's compiler/linker settings
 set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(googletest)
+
+
+#needed for easygl
+add_compile_definitions(PLATFORM=X11)
 
 FetchContent_GetProperties(spdlog)
 if (NOT spdlog_POPULATED)
@@ -67,11 +70,12 @@ add_executable(
   a1
   main.cpp
   circuit.cpp
+  easygl/graphics.cpp
 )
-
 target_link_libraries(
   a1
   spdlog::spdlog
+  X11
 )
 target_link_libraries(
   data_init_tests
