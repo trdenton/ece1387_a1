@@ -61,7 +61,7 @@ void circuit::allocate_blocks() {
   }
 
   for(int i = 0; i < (grid_size-1)*(grid_size-1); ++i) {
-    switch_blocks.push_back(new switch_block());
+    switch_blocks.push_back(new switch_block(tracks_per_channel));
   }
 
 }

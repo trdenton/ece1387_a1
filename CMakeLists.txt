@@ -60,6 +60,7 @@ add_executable(
   circuit.cpp
   file_read_test.cc
   data_init_test.cc
+  switch_conn_test.cc
 )
 
 #
