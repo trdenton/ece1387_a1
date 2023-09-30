@@ -82,30 +82,29 @@ class switch_block {
   vector<uint16_t>* conns;
 
   public:
-    switch_block(int tracks_per_channel) {
-      conns = new vector<uint16_t>(tracks_per_channel, 0UL);
-    }
+  switch_block(int tracks_per_channel) {
+    conns = new vector<uint16_t>(tracks_per_channel, 0UL);
+  }
 
-    void connect(enum direction src, enum direction dst, int track) {
-      if (track < 0 || track >= conns->size()) {
-        spdlog::error("track {} out of range", track);
-        return;
-      }
-      (*conns)[track] |= connect_mask(src,dst);
+  void connect(enum direction src, enum direction dst, int track) {
+    if (track < 0 || track >= conns->size()) {
+      spdlog::error("track {} out of range", track);
+      return;
     }
+    (*conns)[track] |= connect_mask(src,dst);
+  }
 
-    bool is_connected(enum direction src, enum direction dst, int track) {
-      if (track < 0 || track >= conns->size()) {
-        spdlog::error("track {} out of range", track);
-        return false;
-      }
-      uint16_t conn = (*conns)[track];
-      cerr << "connval " << hex << conn << endl;
-      return track_connected(conn, src, dst);
+  bool is_connected(enum direction src, enum direction dst, int track) {
+    if (track < 0 || track >= conns->size()) {
+      spdlog::error("track {} out of range", track);
+      return false;
     }
+    uint16_t conn = (*conns)[track];
+    return track_connected(conn, src, dst);
+  }
 
   private:
-    uint16_t connect_mask(enum direction src, enum direction dst) {
+  uint16_t connect_mask(enum direction src, enum direction dst) {
     // 64 bit field
     // 1 index selects the nibble (4 nibbles)
     // other index selects the bit within that nibble
@@ -113,11 +112,11 @@ class switch_block {
     // but consider that it is bidirectional, so this must actually mean
     // 0b0000 0000 0001 0010
     // 
-      uint16_t mask = (1<<src)<<(4*dst) | (1<<dst)<<(4*src);
-      return mask;
-    }
+    uint16_t mask = (1<<src)<<(4*dst) | (1<<dst)<<(4*src);
+    return mask;
+  }
 
-    bool track_connected(uint16_t conns, enum direction src, enum direction dst) {
+  bool track_connected(uint16_t conns, enum direction src, enum direction dst) {
     // it can be direct connection, or indirect connection via 1 or 2 intermediates
 
     // WESN    N
@@ -125,43 +124,16 @@ class switch_block {
     // WESN    E
     // WESN    W
 
-    uint16_t cm = connect_mask(src,dst);
+    uint16_t src_conns = (conns>>(4*src))&0x00ff;
 
-    cerr << "CM " << hex << cm << endl; 
 
-    if (conns & cm)
-      return true;
-
-    // no connection yet... try by way of 1 intermediate
-    uint16_t cmw = (conns & connect_mask(src,WEST)) && ( conns & connect_mask(WEST,dst));
-    uint16_t cme = (conns & connect_mask(src,EAST)) && ( conns & connect_mask(EAST,dst));
-    uint16_t cmn = (conns & connect_mask(src,NORTH)) && ( conns & connect_mask(NORTH,dst));
-    uint16_t cms = (conns & connect_mask(src,SOUTH)) && ( conns & connect_mask(SOUTH,dst));
-
-    cerr << "cmw cme cmn cms " << hex << cmw << " " << cme << " " << cmn << " " << cms << endl;
-
-    if (cmw || cme || cmn || cms)
-      return true;
-
-    // try 2 intermediates
-    uint16_t bm = 0UL;
-
-    if (conns & connect_mask(src,NORTH)) {
-      bm |= connect_mask(src,NORTH);
+    for(int i = 0; i < N_DIRECTIONS; ++i) {
+      if (src_conns & (1<<i)) {
+        src_conns |= ((conns >> (4*i)) & 0x00ff);
+      }
     }
 
-    
-    /*
-    uint16_t cmwe = (conns & connect_mask(src,WEST)) && ( conns & connect_mask(WEST,EAST)) && (conns & connect_mask(EAST,dst));
-    uint16_t xxxx = (conns & connect_mask(src,SOUTH)) && ( conns & connect_mask(SOUTH,EAST)) && (conns & connect_mask(EAST,dst));
-    uint16_t cmwn = (conns & connect_mask(src,WEST)) && ( conns & connect_mask(WEST,NORTH)) && (conns & connect_mask(NORTH,dst));
-    uint16_t cmws = (conns & connect_mask(src,WEST)) && ( conns & connect_mask(WEST,SOUTH)) && (conns & connect_mask(SOUTH,dst));
-    uint16_t cmen = (conns & connect_mask(src,EAST)) && ( conns & connect_mask(EAST,NORTH)) && (conns & connect_mask(NORTH,dst));
-    uint16_t cmes = (conns & connect_mask(src,EAST)) && ( conns & connect_mask(EAST,SOUTH)) && (conns & connect_mask(SOUTH,dst));
-    uint16_t cmns = (conns & connect_mask(src,NORTH)) && ( conns & connect_mask(NORTH,SOUTH)) && (conns & connect_mask(SOUTH,dst));
-    */
-
-   if ( cmwe || cmwe || cmws || cmen || cmes || cmns || xxxx)
+    if (src_conns & (1<<dst))
       return true;
 
     return false;
