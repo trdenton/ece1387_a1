@@ -75,6 +75,7 @@ add_executable(
   a1
   main.cpp
   circuit.cpp
+  ui.cpp
   easygl/graphics.cpp
 )
 target_link_libraries(
