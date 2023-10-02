@@ -12,6 +12,10 @@ project(a1)
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+include (${CMAKE_ROOT}/Modules/FindX11.cmake)
+include_directories(${X11_INCLUDE_DIR})
+
+
 include(FetchContent)
 FetchContent_Declare(
   googletest
@@ -76,7 +80,7 @@ add_executable(
 target_link_libraries(
   a1
   spdlog::spdlog
-  X11
+  ${X11_LIBRARIES}
 )
 target_link_libraries(
   data_init_tests
