@@ -2503,6 +2503,16 @@ void close_postscript (void)
 	force_setfontsize (currentfontsize); 
 }
 
+/* Properly ends postscript output and redirects output to screen. */
+// added this function to address segfaults when no xserver running (e.g. on github codespaces)
+void close_postscript_noui (void) 
+{
+		
+	fprintf(ps,"showpage\n");
+	fprintf(ps,"\n%%%%Trailer\n");
+	fclose (ps);
+	disp_type = SCREEN;
+}
 
 /* Sets up the default menu buttons on the right hand side of the window. */
 static void 

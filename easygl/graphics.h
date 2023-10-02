@@ -119,7 +119,8 @@ void destroy_button (const char *button_text);
 int init_postscript (const char *fname);   /* Returns 1 if successful */
 
 /* Closes file and directs output to screen again.       */
-void close_postscript (void);      
+void close_postscript (void);     
+void close_postscript_noui (void);       
 
 
 /*************** DRAWING ROUTINES ******************/
