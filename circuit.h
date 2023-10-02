@@ -82,11 +82,11 @@ enum direction {
 };
 
 class switch_block {
-  int x;
-  int y;
   vector<uint16_t>* conns;
 
   public:
+  int x;
+  int y;
   switch_block(int _x, int _y, int tracks_per_channel) {
     x = _x;
     y = _y;
