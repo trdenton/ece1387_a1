@@ -1,8 +1,10 @@
 #include <stdio.h>
+#include <string>
 #include "easygl/graphics.h"
 #include "spdlog/spdlog.h"
 #include "circuit.h"
 #include "ui.h"
+using namespace std;
 
 // Callbacks for event-driven window handling.
 void ui_drawscreen();
@@ -25,6 +27,19 @@ void ui_init(circuit* circuit) {
     //set_keypress_input(true);
     //set_mouse_move_input(true);
     event_loop(ui_click_handler, ui_mouse_handler, ui_key_handler, ui_drawscreen);   
+}
+
+void ps_output(circuit* circuit, string file) {
+    if (init_postscript(file.c_str())) {
+        spdlog::info("Writing postscript to {}", file);
+        //init_graphics("A1", BLACK);
+        init_world(0., 0., 1000., 1000.);
+        ui_draw(circuit);
+        close_postscript_noui();
+        spdlog::info("Finished writing postscript to {}", file);
+    } else {
+        spdlog::error("could not write postscript to {}", file);
+    }
 }
 
 void ui_teardown() {

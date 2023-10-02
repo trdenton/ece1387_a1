@@ -12,12 +12,13 @@
 using namespace std;
 
 void print_usage() {
-    cout << "Usage: ./a1 [-hv] [-d] -f circuit_file" << endl;
+    cout << "Usage: ./a1 [-hv] [-di] -f circuit_file [-p postscript_file]" << endl;
     cout << "\t-h: this help message" <<endl;
     cout << "\t-v: print version info" <<endl;
     cout << "\t-f circuit_file: the circuit file (required)" <<endl;
     cout << "\t-d: turn on debug log level" <<endl;
     cout << "\t-i: enable interactive mode" <<endl;
+    cout << "\t-p postscript_file: output image to ps file" <<endl;
 }
 
 void print_version() {
@@ -29,12 +30,13 @@ void print_version() {
 
 int main(int n, char** args) {
     string file = "";
+    string ps_file = "";
 
     bool interactive = false;
 
     for(;;)
     {
-        switch(getopt(n, args, "vhf:di"))
+        switch(getopt(n, args, "vhf:dip:"))
         {
             case 'f':
                 file = optarg;
@@ -47,6 +49,10 @@ int main(int n, char** args) {
             case 'v':
                 print_version();
                 return 0;
+
+            case 'p':
+                ps_file = optarg;
+                continue;
 
             case 'i':
                 interactive = true;
@@ -75,8 +81,12 @@ int main(int n, char** args) {
     if (interactive) {
         spdlog::info("Entering interactive mode");
         ui_init(circ);
+        ui_teardown();
     }
-    ui_teardown();
+    if (ps_file != "") {
+        ps_output(circ, ps_file);
+    }
+    
     spdlog::info("Exiting");
     delete(circ);
     return 0;
