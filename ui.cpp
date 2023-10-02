@@ -51,20 +51,20 @@ void ui_draw(switch_block* sb) {
     setcolor(WHITE);
 	setlinewidth(1);
     float x0, y0, x1, y1;
-    x0 = (2*sb->x+1)*logic_block_width;
-    y0 = (2*sb->y+1)*logic_block_width;
-    x1 = (2*sb->x+2)*logic_block_width;
-    y1 = (2*sb->y+2)*logic_block_width;
+    x0 = (2*sb->x+1)*(logic_block_width*1.25);
+    y0 = (2*sb->y+1)*(logic_block_width*1.25);
+    x1 = x0 + logic_block_width;
+    y1 = y0 + logic_block_width;
     drawrect(x0, y0, x1, y1);
 }
 void ui_draw(logic_block* lb) {
     setcolor(GREEN);
 	setlinewidth(1);
     float x0, y0, x1, y1;
-    x0 = (2*lb->x)*logic_block_width;
-    y0 = (2*lb->y)*logic_block_width;
-    x1 = (2*lb->x+1)*logic_block_width;
-    y1 = (2*lb->y+1)*logic_block_width;
+    x0 = (2*lb->x)*(logic_block_width*1.25);
+    y0 = (2*lb->y)*(logic_block_width*1.25);
+    x1 = x0 + logic_block_width;
+    y1 = y0 + logic_block_width;
     drawrect(x0, y0, x1, y1);
 }
 void ui_draw(connection* conn) {
