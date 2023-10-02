@@ -59,6 +59,12 @@ void ui_draw(logic_block* lb) {
     x1 = x0 + logic_block_width;
     y1 = y0 + logic_block_width;
     drawrect(x0, y0, x1, y1);
+    
+    drawline( x1 - logic_block_width*0.25, y1, x1 - logic_block_width*0.25, y1+logic_block_width*1.25 );
+    drawline( x0 + logic_block_width*0.25, y0, x0 + logic_block_width*0.25, y0-logic_block_width*1.25 );
+
+    drawline( x1 , y1 - logic_block_width*0.25, x1 + logic_block_width*1.25, y1 - logic_block_width*0.25);
+    drawline( x0 , y0 + logic_block_width*0.25, x0 - logic_block_width*1.25, y0 + logic_block_width*0.25);
 }
 
 void ui_draw_conns(switch_block* sb, float x0, float y0, float x1, float y1, float length) {
@@ -69,7 +75,6 @@ void ui_draw_conns(switch_block* sb, float x0, float y0, float x1, float y1, flo
 
     float xoff = dx/2;
     float yoff = dy/2;
-
 
     for(int i = 0; i < sb->tracks_per_channel; ++i) {
         drawline(xoff + x0 + i*dx, y0, xoff + x0 + i*dx, y0 - length);
