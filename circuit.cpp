@@ -63,8 +63,8 @@ void circuit::allocate_blocks() {
   }
 
   for(int i = 0; i < (grid_size-1)*(grid_size-1); ++i) {
-    int x = i%grid_size;
-    int y = i/grid_size;
+    int x = i%(grid_size-1);
+    int y = i/(grid_size-1);
     switch_blocks.push_back(new switch_block(x, y, tracks_per_channel));
   }
 }

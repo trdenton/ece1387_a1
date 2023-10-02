@@ -10,7 +10,7 @@ void ui_click_handler (float x, float y);
 void ui_mouse_handler (float x, float y);
 void ui_key_handler(char c);
 
-float gap = 10.0;
+float logic_block_width = 10.0;
 
 circuit* circ;
 
@@ -48,21 +48,32 @@ void ui_key_handler(char c) {
 }
 
 void ui_draw(switch_block* sb) {
-    setcolor(GREEN);
+    setcolor(WHITE);
 	setlinewidth(1);
     float x0, y0, x1, y1;
-    x0 = sb->x*10. + gap;
-    y0 = sb->y*10. + gap;
-    x1 = (sb->x+1)*10. + gap;
-    y1 = (sb->y+1)*10. + gap;
+    x0 = (2*sb->x+1)*logic_block_width;
+    y0 = (2*sb->y+1)*logic_block_width;
+    x1 = (2*sb->x+2)*logic_block_width;
+    y1 = (2*sb->y+2)*logic_block_width;
     drawrect(x0, y0, x1, y1);
 }
 void ui_draw(logic_block* lb) {
+    setcolor(GREEN);
+	setlinewidth(1);
+    float x0, y0, x1, y1;
+    x0 = (2*lb->x)*logic_block_width;
+    y0 = (2*lb->y)*logic_block_width;
+    x1 = (2*lb->x+1)*logic_block_width;
+    y1 = (2*lb->y+1)*logic_block_width;
+    drawrect(x0, y0, x1, y1);
 }
 void ui_draw(connection* conn) {
 }
 
 void ui_draw(circuit* circ) {
+    for(auto lb : circ->logic_blocks) {
+        ui_draw(lb);
+    }
     for(auto sb : circ->switch_blocks) {
         ui_draw(sb);
     }
