@@ -89,7 +89,9 @@ class switch_block {
   public:
   int x;
   int y;
-  switch_block(int _x, int _y, int tracks_per_channel) {
+  int tracks_per_channel;
+  switch_block(int _x, int _y, int _tracks_per_channel) {
+    tracks_per_channel = _tracks_per_channel;
     x = _x;
     y = _y;
     conns = new vector<uint16_t>(tracks_per_channel, 0UL);
