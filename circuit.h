@@ -32,26 +32,30 @@ class logic_block {
     vector<char>* south_conns;
     vector<char>* east_conns;
     vector<char>* west_conns;
-    logic_block(int index, int grid_size, int tracks_per_channel) {
+    int x;
+    int y;
+    logic_block(int _x, int _y, int grid_size, int tracks_per_channel) {
+      x = _x;
+      y = _y;
       int n_north = tracks_per_channel;
       int n_south = tracks_per_channel;
       int n_east = tracks_per_channel;
       int n_west = tracks_per_channel;
 
-      if (index < grid_size) {
+      if (y == 0) {
         n_north = 0;
       } 
 
       // along the bottom row
-      if (index > grid_size*(grid_size-1)-1) {
+      if (y == grid_size-1) {
         n_south = 0;
       }
 
-      if (index % grid_size == 0) {
+      if (x == 0 ) {
         n_west = 0;
       }
 
-      if (index % grid_size == grid_size-1) {
+      if (x == grid_size-1) {
         n_east = 0;
       }
 
@@ -77,12 +81,15 @@ enum direction {
   N_DIRECTIONS
 };
 
-
 class switch_block {
+  int x;
+  int y;
   vector<uint16_t>* conns;
 
   public:
-  switch_block(int tracks_per_channel) {
+  switch_block(int _x, int _y, int tracks_per_channel) {
+    x = _x;
+    y = _y;
     conns = new vector<uint16_t>(tracks_per_channel, 0UL);
   }
 
@@ -91,7 +98,7 @@ class switch_block {
       spdlog::error("track {} out of range", track);
       return;
     }
-    (*conns)[track] |= connect_mask(src,dst);
+    (*conns)[track] |= (1<<src)<<(4*dst) | (1<<dst)<<(4*src);
   }
 
   bool is_connected(enum direction src, enum direction dst, int track) {
@@ -104,17 +111,6 @@ class switch_block {
   }
 
   private:
-  uint16_t connect_mask(enum direction src, enum direction dst) {
-    // 64 bit field
-    // 1 index selects the nibble (4 nibbles)
-    // other index selects the bit within that nibble
-    // e.g. 0b0000 0000 0000 0010 indicates north is connected to south
-    // but consider that it is bidirectional, so this must actually mean
-    // 0b0000 0000 0001 0010
-    // 
-    uint16_t mask = (1<<src)<<(4*dst) | (1<<dst)<<(4*src);
-    return mask;
-  }
 
   bool track_connected(uint16_t conns, enum direction src, enum direction dst) {
     // it can be direct connection, or indirect connection via 1 or 2 intermediates
