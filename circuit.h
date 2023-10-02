@@ -34,9 +34,11 @@ class logic_block {
     vector<char>* west_conns;
     int x;
     int y;
-    logic_block(int _x, int _y, int grid_size, int tracks_per_channel) {
+    int tracks_per_channel;
+    logic_block(int _x, int _y, int grid_size, int _tracks_per_channel) {
       x = _x;
       y = _y;
+      tracks_per_channel = _tracks_per_channel;
       int n_north = tracks_per_channel;
       int n_south = tracks_per_channel;
       int n_east = tracks_per_channel;
