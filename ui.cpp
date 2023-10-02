@@ -91,8 +91,13 @@ void ui_draw(switch_block* sb) {
     y1 = y0 + logic_block_width;
     drawrect(x0, y0, x1, y1);
 
+    setcolor(LIGHTGREY);
+    ui_draw_conns(sb, x0, y0, x1, y1, logic_block_width);
+    setcolor(WHITE);
     ui_draw_conns(sb, x0, y0, x1, y1, logic_block_width*0.25);
 }
+
+
 void ui_draw(connection* conn) {
 }
 
