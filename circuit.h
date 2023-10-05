@@ -114,6 +114,15 @@ class switch_block {
     return track_connected(conn, src, dst);
   }
 
+  bool direct_connected(enum direction src, enum direction dst, int track) {
+    if (track < 0 || track >= conns->size()) {
+      spdlog::error("track {} out of range", track);
+      return false;
+    }
+    uint16_t conn = (*conns)[track];
+    return (conn & ((1<<src)<<(4*dst) | (1<<dst)<<(4*src)));
+  }
+
   private:
 
   bool track_connected(uint16_t conns, enum direction src, enum direction dst) {

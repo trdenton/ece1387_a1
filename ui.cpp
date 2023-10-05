@@ -67,8 +67,12 @@ void ui_draw(logic_block* lb) {
     drawline( x0 , y0 + logic_block_width*0.25, x0 - logic_block_width*1.25, y0 + logic_block_width*0.25);
 }
 
-void ui_draw_conns(switch_block* sb, float x0, float y0, float x1, float y1, float length) {
-    setlinestyle (DASHED);
+enum ui_draw_conn_mode {
+    INTERNAL,
+    EXTERNAL
+};
+
+void ui_draw_conns(switch_block* sb, enum ui_draw_conn_mode mode, float x0, float y0, float x1, float y1, float length) {
     
     float dx = (x1-x0)/float(sb->tracks_per_channel);
     float dy = (y1-y0)/float(sb->tracks_per_channel);
@@ -77,13 +81,50 @@ void ui_draw_conns(switch_block* sb, float x0, float y0, float x1, float y1, flo
     float yoff = dy/2;
 
     for(int i = 0; i < sb->tracks_per_channel; ++i) {
-        drawline(xoff + x0 + i*dx, y0, xoff + x0 + i*dx, y0 - length);
-        drawline(xoff + x0 + i*dx, y1, xoff + x0 + i*dx, y1 + length);
+        if (mode == EXTERNAL) {
+            drawline(xoff + x0 + i*dx, y0, xoff + x0 + i*dx, y0 - length);
+            drawline(xoff + x0 + i*dx, y1, xoff + x0 + i*dx, y1 + length);
 
-        drawline(x1, yoff + y0 + i*dy, x1 + length, yoff + y0 + i*dy);
-        drawline(x0, yoff + y0 + i*dy, x0 - length, yoff + y0 + i*dy);
+            drawline(x1, yoff + y0 + i*dy, x1 + length, yoff + y0 + i*dy);
+            drawline(x0, yoff + y0 + i*dy, x0 - length, yoff + y0 + i*dy);
+        }
+
+        //  NNNN
+        // W    E
+        // W    E
+        // W    E
+        //  SSSS
+
+        // for each plane, draw the conns
+        if (mode == INTERNAL) {
+            enum direction map[] = {NORTH,SOUTH,EAST,WEST};
+            for(int src=0; src < N_DIRECTIONS; ++src) {
+                for(int dst=src+1; dst < N_DIRECTIONS; ++dst) {
+                    if ((dst != src) && sb->direct_connected(map[src],map[dst],i)) {
+                        float srcx = (map[src] == EAST ? x1 : x0);
+                        float srcy = (map[src] == SOUTH ? y1 : y0);
+                        float dstx = (map[dst] == EAST ? x1 : x0);
+                        float dsty = (map[dst] == SOUTH ? y1 : y0);
+
+                        if (map[src] == NORTH || map[src] == SOUTH)
+                            srcx += i*dx + xoff;
+                        else if (map[src] == WEST || map[src] == EAST)
+                            srcy += i*dy + yoff;
+
+                        if (map[dst] == NORTH || map[dst] == SOUTH)
+                            dstx += i*dx + xoff;
+                        else if (map[dst] == WEST || map[dst] == EAST)
+                            dsty += i*dy + yoff;
+
+                        drawline(srcx,srcy,dstx,dsty);
+                    }
+                }
+            }
+        }
     }
+
 }
+
 
 void ui_draw(switch_block* sb) {
     setcolor(WHITE);
@@ -96,10 +137,19 @@ void ui_draw(switch_block* sb) {
     y1 = y0 + logic_block_width;
     drawrect(x0, y0, x1, y1);
 
+    // draw the grid connections
+    setlinestyle (DASHED);
     setcolor(LIGHTGREY);
-    ui_draw_conns(sb, x0, y0, x1, y1, logic_block_width);
+    ui_draw_conns(sb, EXTERNAL, x0, y0, x1, y1, logic_block_width);
+    // draw the track segments into the switchblock
     setcolor(WHITE);
-    ui_draw_conns(sb, x0, y0, x1, y1, logic_block_width*0.25);
+    ui_draw_conns(sb, EXTERNAL, x0, y0, x1, y1, logic_block_width*0.25);
+    // draw internal switch connections
+
+    setcolor(RED);
+    setlinestyle(SOLID);
+    setlinewidth(4);
+    ui_draw_conns(sb, INTERNAL, x0, y0, x1, y1, logic_block_width*0.25);
 }
 
 
