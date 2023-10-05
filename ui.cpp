@@ -30,10 +30,9 @@ void ui_init(circuit* circuit) {
 }
 
 void ps_output(circuit* circuit, string file) {
+    init_world(0., 0., 100., 100.);
     if (init_postscript(file.c_str())) {
         spdlog::info("Writing postscript to {}", file);
-        //init_graphics("A1", BLACK);
-        init_world(0., 0., 1000., 1000.);
         ui_draw(circuit);
         close_postscript_noui();
         spdlog::info("Finished writing postscript to {}", file);
