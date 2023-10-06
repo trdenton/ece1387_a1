@@ -82,8 +82,9 @@ void ui_draw(logic_block* lb) {
 }
 
 enum ui_draw_conn_mode {
-    INTERNAL,
-    EXTERNAL
+    SWITCH_CONNS,
+    TRACK_SEGMENTS_EMPTY,
+    TRACK_SEGMENTS_USED
 };
 
 void ui_draw_conns(switch_block* sb, enum ui_draw_conn_mode mode, float x0, float y0, float x1, float y1, float length) {
@@ -95,22 +96,25 @@ void ui_draw_conns(switch_block* sb, enum ui_draw_conn_mode mode, float x0, floa
     float yoff = dy/2;
 
     for(int i = 0; i < sb->tracks_per_channel; ++i) {
-        if (mode == EXTERNAL) {
+        if (mode == TRACK_SEGMENTS_EMPTY) {
             drawline(xoff + x0 + i*dx, y0, xoff + x0 + i*dx, y0 - length);
             drawline(xoff + x0 + i*dx, y1, xoff + x0 + i*dx, y1 + length);
-
             drawline(x1, yoff + y0 + i*dy, x1 + length, yoff + y0 + i*dy);
             drawline(x0, yoff + y0 + i*dy, x0 - length, yoff + y0 + i*dy);
-        }
-
-        //  NNNN
-        // W    E
-        // W    E
-        // W    E
-        //  SSSS
-
-        // for each plane, draw the conns
-        if (mode == INTERNAL) {
+        } else if (mode == TRACK_SEGMENTS_USED) {
+            if (sb->segment_used(NORTH, i)) {
+                drawline(xoff + x0 + i*dx, y0, xoff + x0 + i*dx, y0 - length);
+            }
+            if (sb->segment_used(SOUTH, i)) {
+                drawline(xoff + x0 + i*dx, y1, xoff + x0 + i*dx, y1 + length);
+            }
+            if (sb->segment_used(EAST, i)) {
+                drawline(x1, yoff + y0 + i*dy, x1 + length, yoff + y0 + i*dy);
+            }
+            if (sb->segment_used(WEST, i)) {
+                drawline(x0, yoff + y0 + i*dy, x0 - length, yoff + y0 + i*dy);
+            }
+        } else if (mode == SWITCH_CONNS) {
             enum direction map[] = {NORTH,SOUTH,EAST,WEST};
             for(int src=0; src < N_DIRECTIONS; ++src) {
                 for(int dst=src+1; dst < N_DIRECTIONS; ++dst) {
@@ -136,7 +140,6 @@ void ui_draw_conns(switch_block* sb, enum ui_draw_conn_mode mode, float x0, floa
             }
         }
     }
-
 }
 
 
@@ -154,16 +157,17 @@ void ui_draw(switch_block* sb) {
     // draw the grid connections
     setlinestyle (DASHED);
     setcolor(LIGHTGREY);
-    ui_draw_conns(sb, EXTERNAL, x0, y0, x1, y1, logic_block_width);
+    ui_draw_conns(sb, TRACK_SEGMENTS_EMPTY, x0, y0, x1, y1, logic_block_width);
     // draw the track segments into the switchblock
     setcolor(WHITE);
-    ui_draw_conns(sb, EXTERNAL, x0, y0, x1, y1, logic_block_width*0.25);
+    ui_draw_conns(sb, TRACK_SEGMENTS_EMPTY, x0, y0, x1, y1, logic_block_width*0.25);
     // draw internal switch connections
 
     setcolor(RED);
     setlinestyle(SOLID);
     setlinewidth(4);
-    ui_draw_conns(sb, INTERNAL, x0, y0, x1, y1, logic_block_width*0.25);
+    ui_draw_conns(sb, SWITCH_CONNS, x0, y0, x1, y1, .0);
+    ui_draw_conns(sb, TRACK_SEGMENTS_USED, x0, y0, x1, y1, logic_block_width);
 }
 
 

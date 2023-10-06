@@ -123,6 +123,15 @@ class switch_block {
     return (conn & ((1<<src)<<(4*dst) | (1<<dst)<<(4*src)));
   }
 
+  bool segment_used(enum direction src, int track) {
+    if (track < 0 || track >= conns->size()) {
+      spdlog::error("track {} out of range", track);
+      return false;
+    }
+    uint16_t conn = (*conns)[track];
+    return ( ((conn>>(4*src))&0x000f) != 0);
+  }
+
   private:
 
   bool track_connected(uint16_t conns, enum direction src, enum direction dst) {
