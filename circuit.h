@@ -6,6 +6,10 @@
 #include <sstream>
 #include <inttypes.h>
 #include "spdlog/spdlog.h"
+
+//this is used to instantiate test connections for ui test purposes
+#include "ui_tests.h"
+
 using namespace std;
 class connection {
   public:
@@ -61,10 +65,31 @@ class logic_block {
         n_east = 0;
       }
 
-      north_conns = new vector<char>(n_north, '\0');
-      south_conns = new vector<char>(n_south, '\0');
-      east_conns = new vector<char>(n_east, '\0');
-      west_conns = new vector<char>(n_west, '\0');
+      char n_init = '\0';
+      char s_init = '\0';
+      char e_init = '\0';
+      char w_init = '\0';
+      
+      #ifdef UI_TEST_LB_N_CONN
+      n_init = '1';
+      #endif
+
+      #ifdef UI_TEST_LB_S_CONN
+      s_init = '1';
+      #endif
+
+      #ifdef UI_TEST_LB_E_CONN
+      e_init = '1';
+      #endif
+
+      #ifdef UI_TEST_LB_W_CONN
+      w_init = '1';
+      #endif
+
+      north_conns = new vector<char>(n_north, n_init);
+      south_conns = new vector<char>(n_south, s_init);
+      east_conns = new vector<char>(n_east, e_init);
+      west_conns = new vector<char>(n_west, w_init);
     }
 
     ~logic_block() {
@@ -95,6 +120,30 @@ class switch_block {
     x = _x;
     y = _y;
     conns = new vector<uint16_t>(tracks_per_channel, 0UL);
+
+    #ifdef UI_TEST_SB_N_S
+    connect(NORTH,SOUTH,0);
+    #endif
+
+    #ifdef UI_TEST_SB_E_W
+    connect(EAST,WEST,0);
+    #endif
+
+    #ifdef UI_TEST_SB_N_E
+    connect(NORTH,EAST,1);
+    #endif
+
+    #ifdef UI_TEST_SB_N_W
+    connect(NORTH,WEST,1);
+    #endif
+
+    #ifdef UI_TEST_SB_S_W
+    connect(WEST,SOUTH,1);
+    #endif
+
+    #ifdef UI_TEST_SB_S_E
+    connect(EAST,SOUTH,1);
+    #endif
   }
 
   void connect(enum direction src, enum direction dst, int track) {

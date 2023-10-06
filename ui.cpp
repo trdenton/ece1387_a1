@@ -142,23 +142,24 @@ void ui_draw_switch_conns(switch_block* sb, enum ui_draw_conn_mode mode, float x
                 drawline(x0, yoff + y0 + i*dy, x0 - length, yoff + y0 + i*dy);
             }
         } else if (mode == SWITCH_CONNS) {
-            enum direction map[] = {NORTH,SOUTH,EAST,WEST};
-            for(int src=0; src < N_DIRECTIONS; ++src) {
-                for(int dst=src+1; dst < N_DIRECTIONS; ++dst) {
-                    if ((dst != src) && sb->direct_connected(map[src],map[dst],i)) {
-                        float srcx = (map[src] == EAST ? x1 : x0);
-                        float srcy = (map[src] == SOUTH ? y1 : y0);
-                        float dstx = (map[dst] == EAST ? x1 : x0);
-                        float dsty = (map[dst] == SOUTH ? y1 : y0);
+            for(int src_int=0; src_int != N_DIRECTIONS; ++src_int) {
+                enum direction src = static_cast<direction>(src_int);    
+                for(int dst_int=src+1; dst_int != N_DIRECTIONS; ++dst_int) {
+                    enum direction dst = static_cast<direction>(dst_int);    
+                    if ((dst != src) && sb->direct_connected(src,dst,i)) {
+                        float srcx = (src == EAST ? x1 : x0);
+                        float srcy = (src == SOUTH ? y1 : y0);
+                        float dstx = (dst == EAST ? x1 : x0);
+                        float dsty = (dst == SOUTH ? y1 : y0);
 
-                        if (map[src] == NORTH || map[src] == SOUTH)
+                        if (src == NORTH || src == SOUTH)
                             srcx += i*dx + xoff;
-                        else if (map[src] == WEST || map[src] == EAST)
+                        else if (src == WEST || src == EAST)
                             srcy += i*dy + yoff;
 
-                        if (map[dst] == NORTH || map[dst] == SOUTH)
+                        if (dst == NORTH || dst == SOUTH)
                             dstx += i*dx + xoff;
-                        else if (map[dst] == WEST || map[dst] == EAST)
+                        else if (dst == WEST || dst == EAST)
                             dsty += i*dy + yoff;
 
                         drawline(srcx,srcy,dstx,dsty);
