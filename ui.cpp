@@ -81,7 +81,6 @@ void ui_draw(logic_block* lb) {
     drawline( x0 , y0 + logic_block_width*0.25, x0 - logic_block_width*1.25, y0 + logic_block_width*0.25);
 
     // figure out where to draw little connecty dots
-    //constexpr drawdot = fillarc(xcen
     for(int i = 0; i < lb->tracks_per_channel; ++i) {
 
         if (i < lb->north_conns->size() && (*lb->north_conns)[i] != '\0') {
