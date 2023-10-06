@@ -12,7 +12,7 @@ void ui_click_handler (float x, float y);
 void ui_mouse_handler (float x, float y);
 void ui_key_handler(char c);
 
-void ui_draw_conns(logic_block* lb, float x0, float y0, float x1, float y1, float length);
+void ui_draw_switch_conns(logic_block* lb, float x0, float y0, float x1, float y1, float length);
 
 float logic_block_width = 10.0;
 
@@ -114,7 +114,7 @@ enum ui_draw_conn_mode {
     TRACK_SEGMENTS_USED
 };
 
-void ui_draw_conns(switch_block* sb, enum ui_draw_conn_mode mode, float x0, float y0, float x1, float y1, float length) {
+void ui_draw_switch_conns(switch_block* sb, enum ui_draw_conn_mode mode, float x0, float y0, float x1, float y1, float length) {
     
     float dx = (x1-x0)/float(sb->tracks_per_channel);
     float dy = (y1-y0)/float(sb->tracks_per_channel);
@@ -184,17 +184,17 @@ void ui_draw(switch_block* sb) {
     // draw the grid connections
     setlinestyle (DASHED);
     setcolor(LIGHTGREY);
-    ui_draw_conns(sb, TRACK_SEGMENTS_EMPTY, x0, y0, x1, y1, logic_block_width);
+    ui_draw_switch_conns(sb, TRACK_SEGMENTS_EMPTY, x0, y0, x1, y1, logic_block_width);
     // draw the track segments into the switchblock
     setcolor(WHITE);
-    ui_draw_conns(sb, TRACK_SEGMENTS_EMPTY, x0, y0, x1, y1, logic_block_width*0.25);
+    ui_draw_switch_conns(sb, TRACK_SEGMENTS_EMPTY, x0, y0, x1, y1, logic_block_width*0.25);
     // draw internal switch connections
 
     setcolor(RED);
     setlinestyle(SOLID);
     setlinewidth(4);
-    ui_draw_conns(sb, SWITCH_CONNS, x0, y0, x1, y1, .0);
-    ui_draw_conns(sb, TRACK_SEGMENTS_USED, x0, y0, x1, y1, logic_block_width);
+    ui_draw_switch_conns(sb, SWITCH_CONNS, x0, y0, x1, y1, .0);
+    ui_draw_switch_conns(sb, TRACK_SEGMENTS_USED, x0, y0, x1, y1, logic_block_width);
 }
 
 
