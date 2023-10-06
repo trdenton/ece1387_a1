@@ -63,7 +63,7 @@ class logic_block {
 
       north_conns = new vector<char>(n_north, '\0');
       south_conns = new vector<char>(n_south, '\0');
-      east_conns = new vector<char>(n_east, '1');
+      east_conns = new vector<char>(n_east, '\0');
       west_conns = new vector<char>(n_west, '\0');
     }
 
