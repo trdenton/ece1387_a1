@@ -81,6 +81,7 @@ int main(int n, char** args) {
     if (interactive) {
         spdlog::info("Entering interactive mode");
         ui_init(circ);
+        circ->route();
         ui_teardown();
     }
     if (ps_file != "") {

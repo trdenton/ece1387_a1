@@ -11,6 +11,7 @@
 #include "ui_tests.h"
 
 using namespace std;
+// connection represents a logical connection
 class connection {
   public:
     int x0 = 0, y0 = 0, p0 = 0, x1 = 0, y1 = 0, p1 = 0;
@@ -244,7 +245,12 @@ class circuit {
       return outstring.str();
     }
 
+    logic_block* get_logic_block(int x, int y);
+
     void allocate_blocks();
+
+    bool route();
+    bool route_conn(connection* conn);
 
 };
 #endif

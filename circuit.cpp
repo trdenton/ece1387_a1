@@ -3,6 +3,7 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
+#include <queue>
 #include "spdlog/spdlog.h"
 #include "circuit.h"
 
@@ -67,4 +68,35 @@ void circuit::allocate_blocks() {
     int y = i/(grid_size-1);
     switch_blocks.push_back(new switch_block(x, y, tracks_per_channel));
   }
+}
+
+logic_block* circuit::get_logic_block(int x, int y) {
+    
+    logic_block* ret = nullptr;
+    int index = x + y*grid_size;
+    if (index < logic_blocks.size()) {
+        ret = logic_blocks[index];
+    }
+    return ret;
+}
+
+class route_step {
+    public:
+        int x;
+        int y;
+        int track;
+};
+
+bool circuit::route_conn(connection* conn) {
+    
+    return true;
+}
+
+bool circuit::route() {
+
+    bool result = true;
+    for (auto conn : conns ) {
+        result &= route_conn(conn);
+    }
+    return result;
 }
