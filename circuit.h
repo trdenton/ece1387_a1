@@ -210,12 +210,12 @@ class switch_block {
 
 class circuit {
   public:
-    vector<vector<char>*> h_segs;
-    vector<vector<char>*> v_segs;
     int grid_size, tracks_per_channel;
     vector<connection*> conns;
     vector<logic_block*> logic_blocks;
     vector<switch_block*> switch_blocks;
+    vector<vector<char>*> h_segs;
+    vector<vector<char>*> v_segs;
 
     circuit(string f);
 
