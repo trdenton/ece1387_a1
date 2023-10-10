@@ -3,6 +3,7 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
+#include <queue>
 #include "spdlog/spdlog.h"
 #include "circuit.h"
 
@@ -86,4 +87,81 @@ void circuit::allocate_blocks() {
     int y = i/(grid_size-1);
     switch_blocks.push_back(new switch_block(x, y, tracks_per_channel));
   }
+}
+
+logic_block* circuit::get_logic_block(int x, int y) {
+    
+    logic_block* ret = nullptr;
+    int index = x + y*grid_size;
+    if (index < logic_blocks.size()) {
+        ret = logic_blocks[index];
+    }
+    return ret;
+}
+
+logic_block* circuit::get_switch_block(int x, int y) {
+    
+    switch_block* ret = nullptr;
+    int index = x + y*grid_size;
+    if (index < switch_blocks.size()) {
+        ret = switch_blocks[index];
+    }
+    return ret;
+}
+
+class route_step {
+    public:
+        int x;
+        int y;
+        int track;
+
+    route_step(int _x, int _y, int _track) {
+        x = _x;
+        y = _y;
+        track = _track;
+    }
+};
+
+bool circuit::route_conn(connection* conn) {
+    queue<route_step*> exp_list;
+    logic_block* start = get_logic_block(conn->x0, conn->y0);
+    logic_block* end   = get_logic_block(conn->x1, conn->y1);
+
+    spdlog::debug("routing connection {}", conn->to_string());
+
+    // populate initial expansion list
+    // what info do i need to do this?
+
+    vector<char>* tracks = start->get_pin_conns(conn->p0);
+    int dist = 0;
+    for (int i=0; i < tracks->size(); ++i) {
+        if ((*tracks)[i] == '\0') {
+            (*tracks)[i] = '0'+(char)i;
+            //spdlog::debug("pushed x {} y {} i {}",start->x,start->y,i);
+            exp_list.push( new route_step(start->x, start->y, i) );
+        }
+    }
+
+
+    // now loop 
+    while (!exp_list.empty()) {
+        // get the 
+        route_step* rs = exp_list.front();
+        
+        logic_block* lb = get_logic_block(rs->x, rs->y);
+          
+        exp_list.pop();
+        //spdlog::debug("routed x {} y {} i {}",rs->x,rs->y,rs->track);
+    }
+
+    return true;
+}
+
+bool circuit::route() {
+
+    bool result = true;
+    for (auto conn : conns ) {
+        result &= route_conn(conn);
+    }
+    return result;
 }

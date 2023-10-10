@@ -78,6 +78,7 @@ int main(int n, char** args) {
     print_version();
 
     circuit* circ = new circuit(file);
+    circ->route();
     if (interactive) {
         spdlog::info("Entering interactive mode");
         ui_init(circ);

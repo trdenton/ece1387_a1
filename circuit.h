@@ -11,6 +11,7 @@
 #include "ui_tests.h"
 
 using namespace std;
+// connection represents a logical connection
 class connection {
   public:
     int x0 = 0, y0 = 0, p0 = 0, x1 = 0, y1 = 0, p1 = 0;
@@ -98,6 +99,24 @@ class logic_block {
       delete(east_conns);
       delete(west_conns);
     }
+
+    vector<char>* get_pin_conns(int pin) {
+      switch(pin) {
+        case(1):
+          return south_conns;
+        case(2):
+          return east_conns;
+        case(3):
+          return north_conns;
+        case(4):
+          return west_conns;
+        default:
+          spdlog::error("bad pin: {}, cannot proceed", pin);
+          exit(1);
+          return nullptr;
+      } 
+    }
+
 };
 
 enum direction {
@@ -193,7 +212,6 @@ class switch_block {
 
     uint16_t src_conns = (conns>>(4*src))&0x00ff;
 
-
     for(int i = 0; i < N_DIRECTIONS; ++i) {
       if (src_conns & (1<<i)) {
         src_conns |= ((conns >> (4*i)) & 0x00ff);
@@ -246,9 +264,13 @@ class circuit {
       return outstring.str();
     }
 
+    logic_block* get_logic_block(int x, int y);
+
     void allocate_blocks();
     char get_h_segment(int x, int y, int t);
     char get_v_segment(int x, int y, int t);
 
+    bool route();
+    bool route_conn(connection* conn);
 };
 #endif
