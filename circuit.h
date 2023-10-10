@@ -99,6 +99,24 @@ class logic_block {
       delete(east_conns);
       delete(west_conns);
     }
+
+    vector<char>* get_pin_conns(int pin) {
+      switch(pin) {
+        case(1):
+          return south_conns;
+        case(2):
+          return east_conns;
+        case(3):
+          return north_conns;
+        case(4):
+          return west_conns;
+        default:
+          spdlog::error("bad pin: {}, cannot proceed", pin);
+          exit(1);
+          return nullptr;
+      } 
+    }
+
 };
 
 enum direction {
@@ -194,7 +212,6 @@ class switch_block {
 
     uint16_t src_conns = (conns>>(4*src))&0x00ff;
 
-
     for(int i = 0; i < N_DIRECTIONS; ++i) {
       if (src_conns & (1<<i)) {
         src_conns |= ((conns >> (4*i)) & 0x00ff);
@@ -251,6 +268,5 @@ class circuit {
 
     bool route();
     bool route_conn(connection* conn);
-
 };
 #endif

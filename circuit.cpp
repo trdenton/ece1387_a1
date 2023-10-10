@@ -85,10 +85,31 @@ class route_step {
         int x;
         int y;
         int track;
+
+    route_step(int _x, int _y, int _track) {
+        x = _x;
+        y = _y;
+        track = _track;
+    }
 };
 
 bool circuit::route_conn(connection* conn) {
-    
+    queue<route_step*> exp_list;
+    logic_block* start = get_logic_block(conn->x0, conn->y0);
+    logic_block* end   = get_logic_block(conn->x1, conn->y1);
+
+    // populate initial expansion list
+    // what info do i need to do this?
+
+    vector<char>* tracks = start->get_pin_conns(conn->p0);
+    int dist = 0;
+    for (int i=0; i < conns.size(); ++i) {
+        if ((*tracks)[i] == '\0') {
+            (*tracks)[i] = '0'+(char)i;
+            exp_list.push( new route_step(start->x, start->y, i) );
+        }
+    }
+
     return true;
 }
 
