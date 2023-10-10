@@ -12,6 +12,8 @@ circuit::circuit(string file) {
   string line;
   ifstream infile (file);
   spdlog::debug("Reading input file {}", file);
+
+
   if (infile.is_open()) {
 
     // first line -  grid size 
@@ -53,7 +55,24 @@ circuit::circuit(string file) {
   }
 }
 
+char circuit::get_h_segment(int x, int y, int t) {
+  // h segs: width is grid_size
+  vector<char>* cell = h_segs[x + y*grid_size];
+  return (*cell)[t];
+}
+
+char circuit::get_v_segment(int x, int y, int t) {
+  // v segs: width is grid_size+1
+  vector<char>* cell = v_segs[x + y*(grid_size+1)];
+  return (*cell)[t];
+}
+
 void circuit::allocate_blocks() {
+
+  for(int i = 0; i < (grid_size)*(grid_size+1); ++i) {
+    h_segs.push_back(new vector<char>(tracks_per_channel, '0'));
+    v_segs.push_back(new vector<char>(tracks_per_channel, '0'));
+  }
 
   for(int i = 0; i < grid_size*grid_size; ++i) {
     int x = i%grid_size;
