@@ -105,13 +105,11 @@ bool circuit::route_conn(connection* conn) {
 
     vector<char>* tracks = start->get_pin_conns(conn->p0);
     int dist = 0;
-    for (int i=0; i < conns.size(); ++i) {
-        if (tracks->size() > 0) {
-            if ((*tracks)[i] == '\0') {
-                (*tracks)[i] = '0'+(char)i;
-                spdlog::debug("pushed x {} y {} i {}",start->x,start->y,i);
-                exp_list.push( new route_step(start->x, start->y, i) );
-            }
+    for (int i=0; i < tracks->size(); ++i) {
+        if ((*tracks)[i] == '\0') {
+            (*tracks)[i] = '0'+(char)i;
+            //spdlog::debug("pushed x {} y {} i {}",start->x,start->y,i);
+            exp_list.push( new route_step(start->x, start->y, i) );
         }
     }
 
@@ -121,7 +119,7 @@ bool circuit::route_conn(connection* conn) {
         // get the 
         route_step* rs = exp_list.front();
         exp_list.pop();
-        spdlog::debug("routed x {} y {} i {}",rs->x,rs->y,rs->track);
+        //spdlog::debug("routed x {} y {} i {}",rs->x,rs->y,rs->track);
     }
 
     return true;
