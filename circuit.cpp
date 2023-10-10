@@ -80,6 +80,16 @@ logic_block* circuit::get_logic_block(int x, int y) {
     return ret;
 }
 
+logic_block* circuit::get_switch_block(int x, int y) {
+    
+    switch_block* ret = nullptr;
+    int index = x + y*grid_size;
+    if (index < switch_blocks.size()) {
+        ret = switch_blocks[index];
+    }
+    return ret;
+}
+
 class route_step {
     public:
         int x;
@@ -118,6 +128,9 @@ bool circuit::route_conn(connection* conn) {
     while (!exp_list.empty()) {
         // get the 
         route_step* rs = exp_list.front();
+        
+        logic_block* lb = get_logic_block(rs->x, rs->y);
+          
         exp_list.pop();
         //spdlog::debug("routed x {} y {} i {}",rs->x,rs->y,rs->track);
     }
