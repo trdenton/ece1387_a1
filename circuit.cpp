@@ -98,6 +98,8 @@ bool circuit::route_conn(connection* conn) {
     logic_block* start = get_logic_block(conn->x0, conn->y0);
     logic_block* end   = get_logic_block(conn->x1, conn->y1);
 
+    spdlog::debug("routing connection {}", conn->to_string());
+
     // populate initial expansion list
     // what info do i need to do this?
 
@@ -106,8 +108,18 @@ bool circuit::route_conn(connection* conn) {
     for (int i=0; i < conns.size(); ++i) {
         if ((*tracks)[i] == '\0') {
             (*tracks)[i] = '0'+(char)i;
+            spdlog::debug("pushed x {} y {} i {}",start->x,start->y,i);
             exp_list.push( new route_step(start->x, start->y, i) );
         }
+    }
+
+
+    // now loop 
+    while (!exp_list.empty()) {
+        // get the 
+        route_step* rs = exp_list.front();
+        exp_list.pop();
+        spdlog::debug("routed x {} y {} i {}",rs->x,rs->y,rs->track);
     }
 
     return true;
