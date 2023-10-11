@@ -3,6 +3,7 @@
 #include <vector>
 #include <string>
 #include <iostream>
+#include <queue>
 #include <sstream>
 #include <inttypes.h>
 #include "spdlog/spdlog.h"
@@ -11,6 +12,30 @@
 #include "ui_tests.h"
 
 using namespace std;
+
+enum append_neighbour_result {
+  NONE_ADDED,
+  SOME_ADDED,
+  TARGET_FOUND,
+};
+
+class segment {
+    public:
+        int x;
+        int y;
+        int track;
+        int vert;
+        int len;
+
+    segment(int _x, int _y, int _track, int _vert, int _len) {
+        x = _x;
+        y = _y;
+        track = _track;
+        vert = _vert;
+        len = _len;
+    }
+};
+
 // connection represents a logical connection
 class connection {
   public:
@@ -267,13 +292,14 @@ class circuit {
     logic_block* get_logic_block(int x, int y);
     switch_block* get_switch_block(int x, int y);
 
-    void allocate_blocks();
+    bool route();
+private:
     char get_h_segment(int x, int y, int t);
     char get_v_segment(int x, int y, int t);
     char label_h_segment(int x, int y, int t, char label);
     char label_v_segment(int x, int y, int t, char label);
-
-    bool route();
+    void allocate_blocks();
     bool route_conn(connection* conn);
+    enum append_neighbour_result append_neighbouring_segments(segment* seg, queue<segment*>& exp_list);
 };
 #endif

@@ -81,8 +81,7 @@ char circuit::label_v_segment(int x, int y, int t, char label) {
 char circuit::get_h_segment(int x, int y, int t) {
   // h segs: width is grid_size
   vector<char>* cell = h_segs[x + y*grid_size];
-  if (get_h_segment(x,y,t)=='0')
-    return (*cell)[t];
+  return (*cell)[t];
 }
 
 char circuit::get_v_segment(int x, int y, int t) {
@@ -132,30 +131,7 @@ switch_block* circuit::get_switch_block(int x, int y) {
     return ret;
 }
 
-class segment {
-    public:
-        int x;
-        int y;
-        int track;
-        int vert;
-        int len;
-
-    segment(int _x, int _y, int _track, int _vert, int _len) {
-        x = _x;
-        y = _y;
-        track = _track;
-        vert = _vert;
-        len = _len;
-    }
-};
-
-enum append_neighbour_result {
-  NONE_ADDED,
-  SOME_ADDED,
-  TARGET_FOUND,
-};
-
-void append_neighbouring_segments(segment* seg, queue<segment*>& exp_list) {
+enum append_neighbour_result circuit::append_neighbouring_segments(segment* seg, queue<segment*>& exp_list) {
   enum append_neighbour_result rc = NONE_ADDED;
   char next_label = '0' + seg->len;
 
@@ -163,35 +139,38 @@ void append_neighbouring_segments(segment* seg, queue<segment*>& exp_list) {
   struct seg_test_entry {
     int x;
     int y;
-    char (*fn)(int,int,int,char);
+    char (circuit::*fn)(int,int,int,char);
   };
 
+  int x = seg->x;
+  int y = seg->y;
+
   struct seg_test_entry vert_tab[] = {
-    {x  , y-1,  label_v_seg},
-    {x  , y+1,  label_v_seg},
-    {x-1, y  ,  label_h_seg},
-    {x  , y  ,  label_h_seg},
-    {x-1, y+1,  label_h_seg},
-    {x  , y+1,  label_h_seg},
+    {x  , y-1,  &circuit::label_v_segment},
+    {x  , y+1,  &circuit::label_v_segment},
+    {x-1, y  ,  &circuit::label_h_segment},
+    {x  , y  ,  &circuit::label_h_segment},
+    {x-1, y+1,  &circuit::label_h_segment},
+    {x  , y+1,  &circuit::label_h_segment},
   };
 
   struct seg_test_entry hor_tab[] = {
-    {x-1, y  ,  label_h_seg},
-    {x+1, y  ,  label_h_seg},
-    {x  , y-1,  label_v_seg},
-    {x+1, y-1,  label_v_seg},
-    {x  , y  ,  label_v_seg},
-    {x+1, y  ,  label_v_seg},
+    {x-1, y  ,  &circuit::label_h_segment},
+    {x+1, y  ,  &circuit::label_h_segment},
+    {x  , y-1,  &circuit::label_v_segment},
+    {x+1, y-1,  &circuit::label_v_segment},
+    {x  , y  ,  &circuit::label_v_segment},
+    {x+1, y  ,  &circuit::label_v_segment},
   };
 
-  struct seg_test_entry** test_tab = &hor_tab;
-  if (vert)
-    test_tab = &vert_tab;
+  struct seg_test_entry* test_tab = hor_tab;
+  if (seg->vert)
+    test_tab = vert_tab;
 
   //assumption: hor_tab and vert_tab are the same size
   for(int i=0; i < sizeof(vert_tab)/sizeof(struct seg_test_entry); ++i) {
-    int x = (*test_tab)[i].x;
-    int y = (*test_tab)[i].y;
+    int x = test_tab[i].x;
+    int y = test_tab[i].y;
 
     if (x < 0 || x > grid_size) 
       continue;
@@ -199,11 +178,11 @@ void append_neighbouring_segments(segment* seg, queue<segment*>& exp_list) {
     if (y < 0 || y >= grid_size+1) 
       continue;
 
-    char result = (*test_tab)[i].fn(x,y,track,next_label);
+    char result = ((*this).*(test_tab[i].fn))(x,y,seg->track,next_label);
     if (result == next_label) {
       // we successfully claimed this segment (it was unused)
       // add it to the expansion list
-      exp_list.push(new segment(x,y,track,vert,seg->len+1));
+      exp_list.push(new segment(x,y,seg->track,seg->vert,seg->len+1));
       spdlog::debug("added len {} at {}, {}",seg->len+1,x,y);
       rc = SOME_ADDED;
     } else if (result == 'T') {
@@ -281,12 +260,12 @@ bool circuit::route_conn(connection* conn) {
     int seg_end_vert = pin_to_seg_vert(conn->p1);
 
     // initial population - source conns
-    for (int track = 0; track < track_width; ++track) {
+    for (int track = 0; track < tracks_per_channel; ++track) {
       exp_list.push(new segment(seg_start_x,seg_start_y,track,seg_start_vert,0));
     }
 
     // mark end segs as targets
-    for (int track = 0; track < track_width; ++track) {
+    for (int track = 0; track < tracks_per_channel; ++track) {
       if(seg_end_vert)
         label_v_segment(seg_end_x, seg_end_y, track, 'T');
       else
