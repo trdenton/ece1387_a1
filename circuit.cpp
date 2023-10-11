@@ -139,28 +139,28 @@ enum append_neighbour_result circuit::append_neighbouring_segments(segment* seg,
   struct seg_test_entry {
     int x;
     int y;
-    char (circuit::*fn)(int,int,int,char);
+    int vert;
   };
 
   int x = seg->x;
   int y = seg->y;
 
   struct seg_test_entry vert_tab[] = {
-    {x  , y-1,  &circuit::label_v_segment},
-    {x  , y+1,  &circuit::label_v_segment},
-    {x-1, y  ,  &circuit::label_h_segment},
-    {x  , y  ,  &circuit::label_h_segment},
-    {x-1, y+1,  &circuit::label_h_segment},
-    {x  , y+1,  &circuit::label_h_segment},
+    {x  , y-1,  1},
+    {x  , y+1,  1},
+    {x-1, y  ,  0},
+    {x  , y  ,  0},
+    {x-1, y+1,  0},
+    {x  , y+1,  0},
   };
 
   struct seg_test_entry hor_tab[] = {
-    {x-1, y  ,  &circuit::label_h_segment},
-    {x+1, y  ,  &circuit::label_h_segment},
-    {x  , y-1,  &circuit::label_v_segment},
-    {x+1, y-1,  &circuit::label_v_segment},
-    {x  , y  ,  &circuit::label_v_segment},
-    {x+1, y  ,  &circuit::label_v_segment},
+    {x-1, y  ,  0},
+    {x+1, y  ,  0},
+    {x  , y-1,  1},
+    {x+1, y-1,  1},
+    {x  , y  ,  1},
+    {x+1, y  ,  1},
   };
 
   struct seg_test_entry* test_tab = hor_tab;
@@ -178,11 +178,16 @@ enum append_neighbour_result circuit::append_neighbouring_segments(segment* seg,
     if (y < 0 || y >= grid_size + (seg->vert ? 0:1)) 
       continue;
 
-    char result = ((*this).*(test_tab[i].fn))(x,y,seg->track,next_label);
+    char result;
+    if (test_tab[i].vert)
+      result = label_v_segment(x,y,seg->track,next_label);
+    else
+      result = label_h_segment(x,y,seg->track,next_label);
+
     if (result == next_label) {
       // we successfully claimed this segment (it was unused)
       // add it to the expansion list
-      exp_list.push(new segment(x,y,seg->track,seg->vert,seg->len+1));
+      exp_list.push(new segment(x,y,seg->track,test_tab[i].vert,seg->len+1));
       spdlog::debug("added len {} at {}, {}",seg->len+1,x,y);
       rc = SOME_ADDED;
     } else if (result == 'T') {
