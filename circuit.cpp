@@ -189,6 +189,7 @@ enum append_neighbour_result circuit::append_neighbouring_segments(segment* seg,
       // we have reached a terminal connection
       spdlog::info("TARGET FOUND!!");
       rc = TARGET_FOUND;
+      break;
     } 
     //if neither happened - this was a segment that was already used
   }
