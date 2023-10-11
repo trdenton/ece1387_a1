@@ -132,14 +132,14 @@ switch_block* circuit::get_switch_block(int x, int y) {
     return ret;
 }
 
-class route_step {
+class segment {
     public:
         int x;
         int y;
         int track;
         int vert;
 
-    route_step(int _x, int _y, int _track, int _vert) {
+    segment(int _x, int _y, int _track, int _vert) {
         x = _x;
         y = _y;
         track = _track;
@@ -147,8 +147,75 @@ class route_step {
     }
 };
 
+enum append_neighbour_result {
+  NONE_ADDED,
+  SOME_ADDED,
+  TARGET_FOUND,
+};
+
+void append_neighbouring_segments(segment* seg, queue<segment*>* exp_list, int len) {
+  enum append_neighbour_result rc = NONE_ADDED;
+  char next_label = '0' + len;
+
+  // this struct helps organizes the test tables below
+  struct seg_test_entry {
+    int x;
+    int y;
+    char (*fn)(int,int,int,char);
+  };
+
+  struct seg_test_entry vert_tab[] = {
+    {x  , y-1,  label_v_seg},
+    {x  , y+1,  label_v_seg},
+    {x-1, y  ,  label_h_seg},
+    {x  , y  ,  label_h_seg},
+    {x-1, y+1,  label_h_seg},
+    {x  , y+1,  label_h_seg},
+  };
+
+  struct seg_test_entry hor_tab[] = {
+    {x-1, y  ,  label_h_seg},
+    {x+1, y  ,  label_h_seg},
+    {x  , y-1,  label_v_seg},
+    {x+1, y-1,  label_v_seg},
+    {x  , y  ,  label_v_seg},
+    {x+1, y  ,  label_v_seg},
+  };
+
+  struct seg_test_entry** test_tab = &hor_tab;
+  if (vert)
+    test_tab = &vert_tab;
+
+  //assumption: hor_tab and vert_tab are the same size
+  for(int i=0; i < sizeof(vert_tab)/sizeof(struct seg_test_entry); ++i) {
+    int x = (*test_tab)[i].x;
+    int y = (*test_tab)[i].y;
+
+    if (x < 0 || x > grid_size) 
+      continue;
+
+    if (y < 0 || y >= grid_size+1) 
+      continue;
+
+    char result = (*test_tab)[i].fn(x,y,track,next_label);
+    if (result == next_label) {
+      // we successfully claimed this segment (it was unused)
+      // add it to the expansion list
+      exp_list.push(new segment(x,y,track,vert));
+      rc = SOME_ADDED;
+    } else if (result == 'T') {
+      // we have reached a terminal connection
+      spdlog::info("TARGET FOUND!!");
+      rc = TARGET_FOUND;
+    } 
+    //if neither happened - this was a segment that was already used
+  }
+  return rc;
+}
+
 bool circuit::route_conn(connection* conn) {
-    queue<route_step*> exp_list;
+    int len = 0;
+    queue<segment*> exp_list;
 
     spdlog::debug("routing connection {}", conn->to_string());
 
@@ -162,7 +229,6 @@ bool circuit::route_conn(connection* conn) {
     //    use horizontal seg @ y
     // if we are on the south pin(1),
     //    use horizontal seg @ y+1
-
 
     // convert LB pin to either vertical or horizontal segment
     int seg_x=conn->x0;
@@ -222,11 +288,18 @@ bool circuit::route_conn(connection* conn) {
     for(int i=0; i < sizeof(vert_tab)/sizeof(struct seg_test_entry); ++i) {
       int x = (*test_tab)[i].x;
       int y = (*test_tab)[i].y;
+
+      if (x < 0 || x > grid_size; 
+        continue;
+
+      if (y < 0 || y >= grid_size+1; 
+        continue;
+
       char result = (*test_tab)[i].fn(x,y,track,next_label);
       if (result == next_label) {
         // we successfully claimed this segment (it was unused)
         // add it to the expansion list
-        exp_list.push_back(new route_step(x,y,track,vert));
+        exp_list.push_back(new segment(x,y,track,vert));
       } else if (result == 'T') {
         // we have reached a terminal connection
         spdlog::info("TERMINUS FOUND!!");
@@ -237,7 +310,7 @@ bool circuit::route_conn(connection* conn) {
     // now loop 
     while (!exp_list.empty()) {
         // get the 
-        route_step* rs = exp_list.front();
+        segment* rs = exp_list.front();
         
           
         exp_list.pop();
