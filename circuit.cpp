@@ -138,12 +138,14 @@ class segment {
         int y;
         int track;
         int vert;
+        int len;
 
-    segment(int _x, int _y, int _track, int _vert) {
+    segment(int _x, int _y, int _track, int _vert, int _len) {
         x = _x;
         y = _y;
         track = _track;
         vert = _vert;
+        len = _len;
     }
 };
 
@@ -153,9 +155,9 @@ enum append_neighbour_result {
   TARGET_FOUND,
 };
 
-void append_neighbouring_segments(segment* seg, queue<segment*>* exp_list, int len) {
+void append_neighbouring_segments(segment* seg, queue<segment*>& exp_list) {
   enum append_neighbour_result rc = NONE_ADDED;
-  char next_label = '0' + len;
+  char next_label = '0' + seg->len;
 
   // this struct helps organizes the test tables below
   struct seg_test_entry {
@@ -201,7 +203,8 @@ void append_neighbouring_segments(segment* seg, queue<segment*>* exp_list, int l
     if (result == next_label) {
       // we successfully claimed this segment (it was unused)
       // add it to the expansion list
-      exp_list.push(new segment(x,y,track,vert));
+      exp_list.push(new segment(x,y,track,vert,seg->len+1));
+      spdlog::debug("added len {} at {}, {}",seg->len+1,x,y);
       rc = SOME_ADDED;
     } else if (result == 'T') {
       // we have reached a terminal connection
@@ -213,111 +216,101 @@ void append_neighbouring_segments(segment* seg, queue<segment*>* exp_list, int l
   return rc;
 }
 
+int pin_to_seg_dx(int pin){
+  // convert LB pin to either vertical or horizontal segment
+  switch(pin){
+    case 1: // south
+    case 3: // north
+    case 4: // west
+      return 0;
+    case 2: // east
+      return 1;
+    default:
+      spdlog::error("invalid pin, cannot proceed");
+      exit(1);
+      return 0;
+  }
+}
+
+int pin_to_seg_dy(int pin){
+  // convert LB pin to either vertical or horizontal segment
+  switch(pin){
+    case 2: // south
+    case 3: // north
+    case 4: // west
+      return 0;
+    case 1: // east
+      return 1;
+    default:
+      spdlog::error("invalid pin, cannot proceed");
+      exit(1);
+      return 0;
+  }
+}
+
+int pin_to_seg_vert(int pin){
+  // convert LB pin to either vertical or horizontal segment
+  switch(pin){
+    case 2: // south
+    case 3: // north
+      return 1;
+    case 4: // west
+    case 1: // east
+      return 0;
+    default:
+      spdlog::error("invalid pin, cannot proceed");
+      exit(1);
+      return 0;
+  }
+}
+
 bool circuit::route_conn(connection* conn) {
     int len = 0;
     queue<segment*> exp_list;
 
     spdlog::debug("routing connection {}", conn->to_string());
 
-    // populate initial expansion list
-    // what info do i need to do this?
-
-    // if we are on the west pin(4),
-    //    vertical seg @ x,y
-    // if we are on the east pin(2),
-    // if we are on the north pin(3),
-    //    use horizontal seg @ y
-    // if we are on the south pin(1),
-    //    use horizontal seg @ y+1
+    // convert LB pin to either vertical or horizontal segment
+    int seg_start_x = conn->x0 + pin_to_seg_dx(conn->p0);
+    int seg_start_y = conn->y0 + pin_to_seg_dy(conn->p0);
+    int seg_start_vert = pin_to_seg_vert(conn->p0);
 
     // convert LB pin to either vertical or horizontal segment
-    int seg_x=conn->x0;
-    int seg_y=conn->y0;
-    int vert=0;
-    switch(conn->p0){
-      case 1: // south
-        ++seg_y;
-        break;
-      case 2: // east
-        vert=1;
-        ++seg_x;
-        break;
-      case 3: // north
-        break;
-      case 4: // west
-        vert=1;
-        break;
-      default:
-        spdlog::error("invalid pin, cannot proceed");
-        exit(1);
-        break;
+    int seg_end_x = conn->x1 + pin_to_seg_dx(conn->p1);
+    int seg_end_y = conn->y1 + pin_to_seg_dy(conn->p1);
+    int seg_end_vert = pin_to_seg_vert(conn->p1);
+
+    // initial population - source conns
+    for (int track = 0; track < track_width; ++track) {
+      exp_list.push(new segment(seg_start_x,seg_start_y,track,seg_start_vert,0));
     }
-    
-    char next_label = '0' + len;
 
-    // this struct helps organizes the test tables below
-    struct seg_test_entry {
-      int x;
-      int y;
-      char (*fn)(int,int,int,char);
-    };
-
-    struct seg_test_entry vert_tab[] = {
-      {x  , y-1,  label_v_seg},
-      {x  , y+1,  label_v_seg},
-      {x-1, y  ,  label_h_seg},
-      {x  , y  ,  label_h_seg},
-      {x-1, y+1,  label_h_seg},
-      {x  , y+1,  label_h_seg},
-    };
-
-    struct seg_test_entry hor_tab[] = {
-      {x-1, y  ,  label_h_seg},
-      {x+1, y  ,  label_h_seg},
-      {x  , y-1,  label_v_seg},
-      {x+1, y-1,  label_v_seg},
-      {x  , y  ,  label_v_seg},
-      {x+1, y  ,  label_v_seg},
-    };
-
-    struct seg_test_entry** test_tab = &hor_tab;
-    if (vert)
-      test_tab = &vert_tab;
-
-    //assumption: hor_tab and vert_tab are the same size
-    for(int i=0; i < sizeof(vert_tab)/sizeof(struct seg_test_entry); ++i) {
-      int x = (*test_tab)[i].x;
-      int y = (*test_tab)[i].y;
-
-      if (x < 0 || x > grid_size; 
-        continue;
-
-      if (y < 0 || y >= grid_size+1; 
-        continue;
-
-      char result = (*test_tab)[i].fn(x,y,track,next_label);
-      if (result == next_label) {
-        // we successfully claimed this segment (it was unused)
-        // add it to the expansion list
-        exp_list.push_back(new segment(x,y,track,vert));
-      } else if (result == 'T') {
-        // we have reached a terminal connection
-        spdlog::info("TERMINUS FOUND!!");
-      } 
-      //if neither happened - this was a segment that was already used
+    // mark end segs as targets
+    for (int track = 0; track < track_width; ++track) {
+      if(seg_end_vert)
+        label_v_segment(seg_end_x, seg_end_y, track, 'T');
+      else
+        label_h_segment(seg_end_x, seg_end_y, track, 'T');
     }
+
 
     // now loop 
     while (!exp_list.empty()) {
-        // get the 
-        segment* rs = exp_list.front();
-        
-          
+
+        segment* seg = exp_list.front();
         exp_list.pop();
-        //spdlog::debug("routed x {} y {} i {}",rs->x,rs->y,rs->track);
+        if (TARGET_FOUND == append_neighbouring_segments(seg, exp_list)) {
+          break;
+        }
     }
 
-    return true;
+    if (exp_list.empty()) {
+      spdlog::error("exp_list empty - no route found");  
+      return false;
+    } else {
+      spdlog::info("successfully routed");  
+      return true;
+    }
 }
 
 bool circuit::route() {
