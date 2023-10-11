@@ -59,7 +59,7 @@ circuit::circuit(string file) {
 char circuit::label_h_segment(int x, int y, int t, char label) {
   // h segs: width is grid_size
   vector<char>* cell = h_segs[x + y*grid_size];
-  if (get_h_segment(x,y,t)=='0') {
+  if (get_h_segment(x,y,t)=='U' || label == 'T') {
     (*cell)[t] = label;
     return label;
   } else {
@@ -68,9 +68,9 @@ char circuit::label_h_segment(int x, int y, int t, char label) {
 }
 
 char circuit::label_v_segment(int x, int y, int t, char label) {
-  // h segs: width is grid_size
+  // v segs: width is grid_size+1
   vector<char>* cell = v_segs[x + y*(grid_size+1)];
-  if (get_v_segment(x,y,t)=='0') {
+  if (get_v_segment(x,y,t)=='U' || label == 'T') {
     (*cell)[t] = label;
     return label;
   } else {
@@ -93,8 +93,8 @@ char circuit::get_v_segment(int x, int y, int t) {
 void circuit::allocate_blocks() {
 
   for(int i = 0; i < (grid_size)*(grid_size+1); ++i) {
-    h_segs.push_back(new vector<char>(tracks_per_channel, '0'));
-    v_segs.push_back(new vector<char>(tracks_per_channel, '0'));
+    h_segs.push_back(new vector<char>(tracks_per_channel, 'U')); // unused
+    v_segs.push_back(new vector<char>(tracks_per_channel, 'U'));
   }
 
   for(int i = 0; i < grid_size*grid_size; ++i) {
@@ -172,10 +172,10 @@ enum append_neighbour_result circuit::append_neighbouring_segments(segment* seg,
     int x = test_tab[i].x;
     int y = test_tab[i].y;
 
-    if (x < 0 || x > grid_size) 
+    if (x < 0 || x >= grid_size + (seg->vert ? 1:0))
       continue;
 
-    if (y < 0 || y >= grid_size+1) 
+    if (y < 0 || y >= grid_size + (seg->vert ? 0:1)) 
       continue;
 
     char result = ((*this).*(test_tab[i].fn))(x,y,seg->track,next_label);
@@ -215,11 +215,11 @@ int pin_to_seg_dx(int pin){
 int pin_to_seg_dy(int pin){
   // convert LB pin to either vertical or horizontal segment
   switch(pin){
-    case 2: // south
-    case 3: // north
-    case 4: // west
+    case 2:
+    case 3:
+    case 4:
       return 0;
-    case 1: // east
+    case 1:
       return 1;
     default:
       spdlog::error("invalid pin, cannot proceed");
@@ -231,11 +231,13 @@ int pin_to_seg_dy(int pin){
 int pin_to_seg_vert(int pin){
   // convert LB pin to either vertical or horizontal segment
   switch(pin){
-    case 2: // south
-    case 3: // north
+    // east and west - these need to attach to a vert segment
+    case 2:
+    case 4:
       return 1;
-    case 4: // west
-    case 1: // east
+    // south and north - these need to attach to a horiz segment
+    case 3:
+    case 1:
       return 0;
     default:
       spdlog::error("invalid pin, cannot proceed");
@@ -273,13 +275,14 @@ bool circuit::route_conn(connection* conn) {
         label_h_segment(seg_end_x, seg_end_y, track, 'T');
     }
 
-
     // now loop 
     while (!exp_list.empty()) {
 
         segment* seg = exp_list.front();
+        spdlog::debug("iterate with seg ({} {} {} {})", seg->x, seg->y, seg->track, (seg->vert ? 'V': 'H'));
         exp_list.pop();
         if (TARGET_FOUND == append_neighbouring_segments(seg, exp_list)) {
+          spdlog::debug("segment: {} len", seg->len);
           break;
         }
     }
