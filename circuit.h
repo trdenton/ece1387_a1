@@ -265,10 +265,13 @@ class circuit {
     }
 
     logic_block* get_logic_block(int x, int y);
+    switch_block* get_switch_block(int x, int y);
 
     void allocate_blocks();
     char get_h_segment(int x, int y, int t);
     char get_v_segment(int x, int y, int t);
+    char label_h_segment(int x, int y, int t, char label);
+    char label_v_segment(int x, int y, int t, char label);
 
     bool route();
     bool route_conn(connection* conn);
