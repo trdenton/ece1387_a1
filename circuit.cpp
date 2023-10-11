@@ -301,6 +301,24 @@ bool circuit::route_conn(connection* conn) {
     }
 }
 
+void circuit::traceback(segment* end, queue<segment*>& exp_list) {
+    // see which neighbour is the lowest cost connection
+    int x=end->x;
+    int y=end->y;
+    int track=end->track;
+    if (end->vert) {
+        char n='U', ne='U', nw='U', s='U', se='U', sw='U';
+        n = get_v_segment(x,y-1,track);
+        ne = get_h_segment(x-1,y-1,track);
+        nw = get_h_segment(x+1,y-1,track);
+        s = get_v_segment(x,y+1,track);
+        se = get_h_segment(x-1,y+1,track);
+        sw = get_h_segment(x+1,y+1,track);
+
+        //if s <= se
+    }
+}
+
 bool circuit::route() {
 
     bool result = true;
