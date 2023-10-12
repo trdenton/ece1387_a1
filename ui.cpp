@@ -83,24 +83,24 @@ void ui_draw(logic_block* lb) {
     // figure out where to draw little connecty dots
     for(int i = 0; i < lb->tracks_per_channel; ++i) {
 
-        if (i < lb->north_conns->size() && (*lb->north_conns)[i] != '\0') {
+        if (i < lb->north_conns->size() && (*lb->north_conns)[i] != UNUSED) {
             float xcen = x0 + logic_block_width*0.25;
             float ycen = y0 - logic_block_width*0.25 - float(i+0.5)*logic_block_width/float(lb->north_conns->size());
             fillarc(xcen, ycen, 0.5, 0.0, 360.0);
         }
 
-        if (i < lb->south_conns->size() && (*lb->south_conns)[i] != '\0') {
+        if (i < lb->south_conns->size() && (*lb->south_conns)[i] != UNUSED) {
             float xcen = x1 - logic_block_width*0.25;
             float ycen = y1 + logic_block_width*0.25 + float(i+0.5)*logic_block_width/float(lb->south_conns->size());
             fillarc(xcen, ycen, 0.5, 0.0, 360.0);
         }
 
-        if (i < lb->east_conns->size() && (*lb->east_conns)[i] != '\0') {
+        if (i < lb->east_conns->size() && (*lb->east_conns)[i] != UNUSED) {
             float ycen = y1 - logic_block_width*0.25;
             float xcen = x1 + logic_block_width*0.25 + float(i+0.5)*logic_block_width/float(lb->east_conns->size());
             fillarc(xcen, ycen, 0.5, 0.0, 360.0);
         }
-        if (i < lb->west_conns->size() && (*lb->west_conns)[i] != '\0') {
+        if (i < lb->west_conns->size() && (*lb->west_conns)[i] != UNUSED) {
             float ycen = y0 + logic_block_width*0.25;
             float xcen = x0 - logic_block_width*0.25 - float(i+0.5)*logic_block_width/float(lb->west_conns->size());
             fillarc(xcen, ycen, 0.5, 0.0, 360.0);
