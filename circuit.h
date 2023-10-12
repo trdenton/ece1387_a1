@@ -277,9 +277,9 @@ class circuit {
 
     void traceback(segment* end, queue<segment*>& exp_list);
     bool route();
-private:
     int get_h_segment(int x, int y, int t);
     int get_v_segment(int x, int y, int t);
+private:
     int label_h_segment(int x, int y, int t, int label);
     int label_v_segment(int x, int y, int t, int label);
     void allocate_blocks();
