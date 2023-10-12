@@ -198,7 +198,9 @@ void ui_draw(switch_block* sb) {
     //ui_draw_switch_conns(sb, TRACK_SEGMENTS_USED, x0, y0, x1, y1, logic_block_width);
 }
 
-void ui_draw_segment(circuit* circ, segment* seg, float x0, float y0) {
+void ui_draw_h_segment(circuit* circ, int x, int y) {
+    float x0 = (2*x)*(logic_block_width*1.25);
+    float y0 = (2*y-1)*(logic_block_width*1.25);
     float dy = logic_block_width / float(circ->tracks_per_channel);
     for(int track = 0; track < circ->tracks_per_channel; ++track) {
         switch (circ->get_h_segment(x,y,track)) {
@@ -218,28 +220,20 @@ void ui_draw_segment(circuit* circ, segment* seg, float x0, float y0) {
 }
 
 void ui_draw_segments(circuit* circ) {
+    spdlog::debug("hsegs: {}", circ->h_segs.size());
     for(int i = 0; i < circ->h_segs.size(); ++i) {
         int x = i%(circ->grid_size);
-        int y = i/(circ->grid_size+1);
-        float x0 = (2*x)*(logic_block_width*1.25);
-        float y0 = (2*y-1)*(logic_block_width*1.25);
-        float dy = logic_block_width / float(circ->tracks_per_channel);
-        for(int track = 0; track < circ->tracks_per_channel; ++track) {
-            switch (circ->get_h_segment(x,y,track)) {
-                case UNUSED:
-                    setlinewidth(1);
-                    setlinestyle (DASHED);
-                    setcolor(LIGHTGREY);
-                    break;
-                default:
-                    setlinewidth(4);
-                    setlinestyle (SOLID);
-                    setcolor(RED);
-                    break;
-            }
-            drawline(x0,y0 +track*dy + dy/2, x0 + logic_block_width, y0 + track*dy + dy/2);
-        }
+        int y = i/(circ->grid_size);
+        spdlog::debug("draw segs for {}, {}", x, y);
+        ui_draw_h_segment(circ,x,y);
     }
+/*
+    for(int i = 0; i < circ->v_segs.size(); ++i) {
+        int x = i%(circ->grid_size+2);
+        int y = i/(circ->grid_size+1);
+        ui_draw_v_segment(circ,x,y);
+    }
+*/
 }
 
 
