@@ -23,7 +23,8 @@ void ui_init(circuit* circuit) {
     circ = circuit;
     spdlog::info("Init UI");
     init_graphics("A1", BLACK);
-    init_world(-50.,-50.,150.,150.);
+    //init_world(-50.,-50.,150.,150.);
+    init_world(-50.,150.,150.,-50.);
     //set_keypress_input(true);
     //set_mouse_move_input(true);
     event_loop(ui_click_handler, ui_mouse_handler, ui_key_handler, ui_drawscreen);   
@@ -73,6 +74,9 @@ void ui_draw(logic_block* lb) {
     x1 = x0 + logic_block_width;
     y1 = y0 + logic_block_width;
     drawrect(x0, y0, x1, y1);
+    char label[32] = {'\0'};
+    snprintf(label,32,"(%d,%d)",lb->x,lb->y);
+    drawtext((x0+x1)/2.0, (y0+y1)/2.0, label,10.0);
     
     drawline( x1 - logic_block_width*0.25, y1, x1 - logic_block_width*0.25, y1+logic_block_width*1.25 );
     drawline( x0 + logic_block_width*0.25, y0, x0 + logic_block_width*0.25, y0-logic_block_width*1.25 );
@@ -200,7 +204,7 @@ void ui_draw(switch_block* sb) {
 
 void setline_label(int val){
     switch (val) {
-        case 0:
+        case 0:     // the initial bit
             setlinewidth(4);
             setlinestyle (SOLID);
             setcolor(BLUE);
