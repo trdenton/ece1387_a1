@@ -198,23 +198,38 @@ void ui_draw(switch_block* sb) {
     //ui_draw_switch_conns(sb, TRACK_SEGMENTS_USED, x0, y0, x1, y1, logic_block_width);
 }
 
+void setline_label(int val){
+    switch (val) {
+        case 0:
+            setlinewidth(4);
+            setlinestyle (SOLID);
+            setcolor(BLUE);
+            break;
+        case TARGET:
+            setlinewidth(4);
+            setlinestyle (SOLID);
+            setcolor(YELLOW);
+            break;
+        case UNUSED:
+            setlinewidth(1);
+            setlinestyle (DASHED);
+            setcolor(LIGHTGREY);
+            break;
+        default:
+            setlinewidth(4);
+            setlinestyle (SOLID);
+            setcolor(RED);
+            break;
+    }
+}
+
 void ui_draw_h_segment(circuit* circ, int x, int y) {
     float x0 = (2*x)*(logic_block_width*1.25);
     float y0 = (2*y-1)*(logic_block_width*1.25);
     float dy = logic_block_width / float(circ->tracks_per_channel);
     for(int track = 0; track < circ->tracks_per_channel; ++track) {
-        switch (circ->get_h_segment(x,y,track)) {
-            case UNUSED:
-                setlinewidth(1);
-                setlinestyle (DASHED);
-                setcolor(LIGHTGREY);
-                break;
-            default:
-                setlinewidth(4);
-                setlinestyle (SOLID);
-                setcolor(RED);
-                break;
-        }
+        int val = circ->get_h_segment(x,y,track);
+        setline_label(val);
         drawline(x0,y0 +track*dy + dy/2, x0 + logic_block_width, y0 + track*dy + dy/2);
     }
 }
@@ -224,18 +239,8 @@ void ui_draw_v_segment(circuit* circ, int x, int y) {
     float y0 = (2*y)*(logic_block_width*1.25);
     float dx = logic_block_width / float(circ->tracks_per_channel);
     for(int track = 0; track < circ->tracks_per_channel; ++track) {
-        switch (circ->get_v_segment(x,y,track)) {
-            case UNUSED:
-                setlinewidth(1);
-                setlinestyle (DASHED);
-                setcolor(LIGHTGREY);
-                break;
-            default:
-                setlinewidth(4);
-                setlinestyle (SOLID);
-                setcolor(RED);
-                break;
-        }
+        int val = circ->get_h_segment(x,y,track);
+        setline_label(val);
         drawline(x0 + dx/2 + track*dx, y0, x0 + dx/2 + track*dx, y0 + logic_block_width);
     }
 }
