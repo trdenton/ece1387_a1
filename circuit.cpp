@@ -288,6 +288,7 @@ bool circuit::route_conn(connection* conn) {
         exp_list.pop();
         if (TARGET_FOUND == append_neighbouring_segments(seg, exp_list)) {
           spdlog::debug("segment: {} len", seg->len);
+          traceback(seg, exp_list);
           break;
         }
     }
@@ -306,6 +307,7 @@ void circuit::traceback(segment* end, queue<segment*>& exp_list) {
     int x=end->x;
     int y=end->y;
     int track=end->track;
+    int i=0;
     if (end->vert) {
         char n='U', ne='U', nw='U', s='U', se='U', sw='U';
         n = get_v_segment(x,y-1,track);

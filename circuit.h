@@ -13,6 +13,9 @@
 
 using namespace std;
 
+#define UNUSED (INT_MAX)
+#define TARGET (INT_MAX-1)
+
 enum append_neighbour_result {
   NONE_ADDED,
   SOME_ADDED,
@@ -292,6 +295,7 @@ class circuit {
     logic_block* get_logic_block(int x, int y);
     switch_block* get_switch_block(int x, int y);
 
+    void traceback(segment* end, queue<segment*>& exp_list);
     bool route();
 private:
     char get_h_segment(int x, int y, int t);
