@@ -23,7 +23,7 @@ void ui_init(circuit* circuit) {
     circ = circuit;
     spdlog::info("Init UI");
     init_graphics("A1", BLACK);
-    init_world(0.,0.,50.,50.);
+    init_world(-50.,-50.,150.,150.);
     //set_keypress_input(true);
     //set_mouse_move_input(true);
     event_loop(ui_click_handler, ui_mouse_handler, ui_key_handler, ui_drawscreen);   
@@ -219,21 +219,41 @@ void ui_draw_h_segment(circuit* circ, int x, int y) {
     }
 }
 
+void ui_draw_v_segment(circuit* circ, int x, int y) {
+    float x0 = (2*x-1)*(logic_block_width*1.25);
+    float y0 = (2*y)*(logic_block_width*1.25);
+    float dx = logic_block_width / float(circ->tracks_per_channel);
+    for(int track = 0; track < circ->tracks_per_channel; ++track) {
+        switch (circ->get_v_segment(x,y,track)) {
+            case UNUSED:
+                setlinewidth(1);
+                setlinestyle (DASHED);
+                setcolor(LIGHTGREY);
+                break;
+            default:
+                setlinewidth(4);
+                setlinestyle (SOLID);
+                setcolor(RED);
+                break;
+        }
+        drawline(x0 + dx/2 + track*dx, y0, x0 + dx/2 + track*dx, y0 + logic_block_width);
+    }
+}
+
 void ui_draw_segments(circuit* circ) {
     spdlog::debug("hsegs: {}", circ->h_segs.size());
     for(int i = 0; i < circ->h_segs.size(); ++i) {
         int x = i%(circ->grid_size);
         int y = i/(circ->grid_size);
-        spdlog::debug("draw segs for {}, {}", x, y);
         ui_draw_h_segment(circ,x,y);
     }
-/*
+
     for(int i = 0; i < circ->v_segs.size(); ++i) {
-        int x = i%(circ->grid_size+2);
+        int x = i%(circ->grid_size+1);
         int y = i/(circ->grid_size+1);
+        spdlog::debug("draw segs for {}, {}", x, y);
         ui_draw_v_segment(circ,x,y);
     }
-*/
 }
 
 
