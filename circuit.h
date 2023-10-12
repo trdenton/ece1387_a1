@@ -73,27 +73,6 @@ class logic_block {
       x = _x;
       y = _y;
       tracks_per_channel = _tracks_per_channel;
-      int n_north = tracks_per_channel;
-      int n_south = tracks_per_channel;
-      int n_east = tracks_per_channel;
-      int n_west = tracks_per_channel;
-
-      if (y == 0) {
-        n_north = 0;
-      } 
-
-      // along the bottom row
-      if (y == grid_size-1) {
-        n_south = 0;
-      }
-
-      if (x == 0 ) {
-        n_west = 0;
-      }
-
-      if (x == grid_size-1) {
-        n_east = 0;
-      }
 
       int n_init = UNUSED;
       int s_init = UNUSED;
@@ -116,10 +95,10 @@ class logic_block {
       w_init = 1;
       #endif
 
-      north_conns = new vector<int>(n_north, n_init);
-      south_conns = new vector<int>(n_south, s_init);
-      east_conns = new vector<int>(n_east, e_init);
-      west_conns = new vector<int>(n_west, w_init);
+      north_conns = new vector<int>(tracks_per_channel, n_init);
+      south_conns = new vector<int>(tracks_per_channel, s_init);
+      east_conns = new vector<int>(tracks_per_channel, e_init);
+      west_conns = new vector<int>(tracks_per_channel, w_init);
     }
 
     ~logic_block() {
