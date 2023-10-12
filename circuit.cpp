@@ -4,6 +4,7 @@
 #include <fstream>
 #include <vector>
 #include <queue>
+#include <algorithm>
 #include "spdlog/spdlog.h"
 #include "circuit.h"
 
@@ -308,6 +309,13 @@ void circuit::traceback(segment* end, queue<segment*>& exp_list) {
     int y=end->y;
     int track=end->track;
     int i=0;
+    struct helper {
+        int val;
+        int x;
+        int y;
+        int vert;
+    };
+    vector<struct helper> neighbours;
     if (end->vert) {
         int n=UNUSED, ne=UNUSED, nw=UNUSED, s=UNUSED, se=UNUSED, sw=UNUSED;
         n = get_v_segment(x,y-1,track);
@@ -317,8 +325,30 @@ void circuit::traceback(segment* end, queue<segment*>& exp_list) {
         se = get_h_segment(x-1,y+1,track);
         sw = get_h_segment(x+1,y+1,track);
 
-        //if s <= se
+        neighbours.push_back({n , x  , y-1, 1});
+        neighbours.push_back({ne, x-1, y-1, 0});
+        neighbours.push_back({nw, x+1, y-1, 0});
+        neighbours.push_back({s , x  , y+1, 1});
+        neighbours.push_back({se, x-1, y+1, 0});
+        neighbours.push_back({sw, x+1, y+1, 0});
     }
+    else {
+        int e=UNUSED, ne=UNUSED, nw=UNUSED, w=UNUSED, se=UNUSED, sw=UNUSED;
+        w = get_h_segment(x-1,y,track);
+        e = get_h_segment(x+1,y,track);
+        ne = get_v_segment(x+1,y-1,track);
+        nw = get_v_segment(x-1,y-1,track);
+        se = get_v_segment(x+1,y+1,track);
+        sw = get_v_segment(x-1,y+1,track);
+
+        neighbours.push_back({e , x  , y-1, 0});
+        neighbours.push_back({ne, x-1, y-1, 1});
+        neighbours.push_back({nw, x+1, y-1, 1});
+        neighbours.push_back({w , x  , y+1, 0});
+        neighbours.push_back({se, x-1, y+1, 1});
+        neighbours.push_back({sw, x+1, y+1, 1});
+    }
+    // find min x,y position (and whether thats h or v)
 }
 
 bool circuit::route() {
