@@ -17,7 +17,7 @@ TEST(BlockInit, cct1) {
   circuit* c = new circuit("../data/cct1");
   
   EXPECT_EQ(c->logic_blocks.size(), 16);
-  EXPECT_EQ(c->switch_blocks.size(), 9);
+  EXPECT_EQ(c->switch_blocks.size(), 25);
 
   // top left corner
   EXPECT_EQ(c->logic_blocks[0]->north_conns->size(), 0);
@@ -74,7 +74,7 @@ TEST(BlockInit, cct2) {
   circuit* c = new circuit("../data/cct2");
   
   EXPECT_EQ(c->logic_blocks.size(), 6*6);
-  EXPECT_EQ(c->switch_blocks.size(), 5*5);
+  EXPECT_EQ(c->switch_blocks.size(), 7*7);
 
   delete(c);
 }
@@ -83,7 +83,7 @@ TEST(BlockInit, cct3) {
   circuit* c = new circuit("../data/cct3");
   
   EXPECT_EQ(c->logic_blocks.size(), 14*14);
-  EXPECT_EQ(c->switch_blocks.size(), 13*13);
+  EXPECT_EQ(c->switch_blocks.size(), 15*15);
 
   delete(c);
 }

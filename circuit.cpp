@@ -105,9 +105,9 @@ void circuit::allocate_blocks() {
     logic_blocks.push_back(lb);
   }
 
-  for(int i = 0; i < (grid_size-1)*(grid_size-1); ++i) {
-    int x = i%(grid_size-1);
-    int y = i/(grid_size-1);
+  for(int i = 0; i < (grid_size+1)*(grid_size+1); ++i) {
+    int x = i%(grid_size+1);
+    int y = i/(grid_size+1);
     switch_blocks.push_back(new switch_block(x, y, tracks_per_channel));
   }
 }
@@ -352,4 +352,7 @@ bool circuit::route() {
         result &= route_conn(conn);
     }
     return result;
+}
+
+void circuit::map_routing_to_ui() {
 }
