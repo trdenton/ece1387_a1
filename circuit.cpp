@@ -303,52 +303,100 @@ bool circuit::route_conn(connection* conn) {
     }
 }
 
+bool circuit::segment_in_bounds(struct segment& in) {
+    if (in.vert) {
+        if (in.x >= 0 && in.x <= grid_size && in.y >=0 && in.y < grid_size)
+            return true;
+    } else {
+        if (in.x >= 0 && in.x < grid_size && in.y >=0 && in.y <= grid_size)
+            return true;
+    }
+    return false;
+}
+
 void circuit::traceback(segment* end, queue<segment*>& exp_list) {
     // see which neighbour is the lowest cost connection
     int x=end->x;
     int y=end->y;
     int track=end->track;
     int i=0;
-    struct helper {
-        int val;
-        int x;
-        int y;
-        int vert;
-    };
-    vector<struct helper> neighbours;
+
+    vector<struct segment> tests;
+
+
     if (end->vert) {
-        int n=UNUSED, ne=UNUSED, nw=UNUSED, s=UNUSED, se=UNUSED, sw=UNUSED;
-        n = get_v_segment(x,y-1,track);
-        ne = get_h_segment(x-1,y-1,track);
-        nw = get_h_segment(x+1,y-1,track);
-        s = get_v_segment(x,y+1,track);
-        se = get_h_segment(x-1,y+1,track);
-        sw = get_h_segment(x+1,y+1,track);
+        //int n=UNUSED, ne=UNUSED, nw=UNUSED, s=UNUSED, se=UNUSED, sw=UNUSED;
+        /*
+           n = get_v_segment(x,y-1,track);
+           ne = get_h_segment(x-1,y-1,track);
+           nw = get_h_segment(x+1,y-1,track);
+           s = get_v_segment(x,y+1,track);
+           se = get_h_segment(x-1,y+1,track);
+           sw = get_h_segment(x+1,y+1,track);
+         */
 
-        neighbours.push_back({n , x  , y-1, 1});
-        neighbours.push_back({ne, x-1, y-1, 0});
-        neighbours.push_back({nw, x+1, y-1, 0});
-        neighbours.push_back({s , x  , y+1, 1});
-        neighbours.push_back({se, x-1, y+1, 0});
-        neighbours.push_back({sw, x+1, y+1, 0});
-    }
-    else {
-        int e=UNUSED, ne=UNUSED, nw=UNUSED, w=UNUSED, se=UNUSED, sw=UNUSED;
-        w = get_h_segment(x-1,y,track);
-        e = get_h_segment(x+1,y,track);
-        ne = get_v_segment(x+1,y-1,track);
-        nw = get_v_segment(x-1,y-1,track);
-        se = get_v_segment(x+1,y+1,track);
-        sw = get_v_segment(x-1,y+1,track);
+        tests.push_back({x  , y-1, track, 1});
+        tests.push_back({x-1, y-1, track, 0});
+        tests.push_back({x+1, y-1, track, 0});
+        tests.push_back({x  , y+1, track, 1});
+        tests.push_back({x-1, y+1, track, 0});
+        tests.push_back({x+1, y+1, track, 0});
 
-        neighbours.push_back({e , x  , y-1, 0});
-        neighbours.push_back({ne, x-1, y-1, 1});
-        neighbours.push_back({nw, x+1, y-1, 1});
-        neighbours.push_back({w , x  , y+1, 0});
-        neighbours.push_back({se, x-1, y+1, 1});
-        neighbours.push_back({sw, x+1, y+1, 1});
+        /*
+           if (ON_PATH(n) && in_bounds(x, y-1, 1))
+           neighbours.push_back({n , x  , y-1, 1});
+           if (ON_PATH(ne) && in_bounds(x, y))
+           neighbours.push_back({ne, x-1, y-1, 0});
+           if (ON_PATH(nw) && in_bounds(x, y))
+           neighbours.push_back({nw, x+1, y-1, 0});
+           if (ON_PATH(s) && in_bounds(x, y))
+           neighbours.push_back({s , x  , y+1, 1});
+           if (ON_PATH(se) && in_bounds(x, y))
+           neighbours.push_back({se, x-1, y+1, 0});
+           if (ON_PATH(sw) && in_bounds(x, y))
+           neighbours.push_back({sw, x+1, y+1, 0});
+         */
+    } else {
+        /*
+           int e=UNUSED, ne=UNUSED, nw=UNUSED, w=UNUSED, se=UNUSED, sw=UNUSED;
+           w = get_h_segment(x-1,y,track);
+           e = get_h_segment(x+1,y,track);
+           ne = get_v_segment(x+1,y-1,track);
+           nw = get_v_segment(x-1,y-1,track);
+           se = get_v_segment(x+1,y+1,track);
+           sw = get_v_segment(x-1,y+1,track);
+         */
+
+        tests.push_back({x  , y-1, track, 0});
+        tests.push_back({x-1, y-1, track, 1});
+        tests.push_back({x+1, y-1, track, 1});
+        tests.push_back({x  , y+1, track, 0});
+        tests.push_back({x-1, y+1, track, 1});
+        tests.push_back({x+1, y+1, track, 1});
+        /*
+           if (ON_PATH(e) && in_bounds(x, y))
+           neighbours.push_back({e , x  , y-1, 0});
+           if (ON_PATH(w) && in_bounds(x, y))
+           neighbours.push_back({ne, x-1, y-1, 1});
+           if (ON_PATH(nw) && in_bounds(x, y))
+           neighbours.push_back({nw, x+1, y-1, 1});
+           if (ON_PATH(ne) && in_bounds(x, y))
+           neighbours.push_back({w , x  , y+1, 0});
+           if (ON_PATH(sw) && in_bounds(x, y))
+           neighbours.push_back({se, x-1, y+1, 1});
+           if (ON_PATH(se) && in_bounds(x, y))
+           neighbours.push_back({sw, x+1, y+1, 1});
+         */
     }
     // find min x,y position (and whether thats h or v)
+
+    for (auto test: tests) {
+        if (in_bounds(test)) {
+            int val = *(test.vert ? &get_v_segment : &get_h_segment )(test.x, test.y, track);
+            if (ON_PATH(val))
+                neighbours.push_back(test);
+        }
+    }
 }
 
 bool circuit::route() {

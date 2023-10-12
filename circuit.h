@@ -15,6 +15,7 @@ using namespace std;
 
 #define UNUSED (INT_MAX)
 #define TARGET (INT_MAX-1)
+#define ON_PATH(__X__) (__X__ < TARGET)
 
 enum append_neighbour_result {
   NONE_ADDED,
@@ -305,5 +306,6 @@ private:
     void allocate_blocks();
     bool route_conn(connection* conn);
     enum append_neighbour_result append_neighbouring_segments(segment* seg, queue<segment*>& exp_list);
+    bool segment_in_bounds(struct segment& in);
 };
 #endif
