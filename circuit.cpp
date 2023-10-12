@@ -56,10 +56,10 @@ circuit::circuit(string file) {
   }
 }
 
-char circuit::label_h_segment(int x, int y, int t, char label) {
+int circuit::label_h_segment(int x, int y, int t, int label) {
   // h segs: width is grid_size
-  vector<char>* cell = h_segs[x + y*grid_size];
-  if (get_h_segment(x,y,t)=='U' || label == 'T') {
+  vector<int>* cell = h_segs[x + y*grid_size];
+  if (get_h_segment(x,y,t)==UNUSED || label == TARGET) {
     (*cell)[t] = label;
     return label;
   } else {
@@ -67,10 +67,10 @@ char circuit::label_h_segment(int x, int y, int t, char label) {
   }
 }
 
-char circuit::label_v_segment(int x, int y, int t, char label) {
+int circuit::label_v_segment(int x, int y, int t, int label) {
   // v segs: width is grid_size+1
-  vector<char>* cell = v_segs[x + y*(grid_size+1)];
-  if (get_v_segment(x,y,t)=='U' || label == 'T') {
+  vector<int>* cell = v_segs[x + y*(grid_size+1)];
+  if (get_v_segment(x,y,t)==UNUSED || label == TARGET) {
     (*cell)[t] = label;
     return label;
   } else {
@@ -78,23 +78,23 @@ char circuit::label_v_segment(int x, int y, int t, char label) {
   }
 }
 
-char circuit::get_h_segment(int x, int y, int t) {
+int circuit::get_h_segment(int x, int y, int t) {
   // h segs: width is grid_size
-  vector<char>* cell = h_segs[x + y*grid_size];
+  vector<int>* cell = h_segs[x + y*grid_size];
   return (*cell)[t];
 }
 
-char circuit::get_v_segment(int x, int y, int t) {
+int circuit::get_v_segment(int x, int y, int t) {
   // v segs: width is grid_size+1
-  vector<char>* cell = v_segs[x + y*(grid_size+1)];
+  vector<int>* cell = v_segs[x + y*(grid_size+1)];
   return (*cell)[t];
 }
 
 void circuit::allocate_blocks() {
 
   for(int i = 0; i < (grid_size)*(grid_size+1); ++i) {
-    h_segs.push_back(new vector<char>(tracks_per_channel, 'U')); // unused
-    v_segs.push_back(new vector<char>(tracks_per_channel, 'U'));
+    h_segs.push_back(new vector<int>(tracks_per_channel, UNUSED)); // unused
+    v_segs.push_back(new vector<int>(tracks_per_channel, UNUSED));
   }
 
   for(int i = 0; i < grid_size*grid_size; ++i) {
@@ -133,7 +133,7 @@ switch_block* circuit::get_switch_block(int x, int y) {
 
 enum append_neighbour_result circuit::append_neighbouring_segments(segment* seg, queue<segment*>& exp_list) {
   enum append_neighbour_result rc = NONE_ADDED;
-  char next_label = '0' + seg->len;
+  int next_label = seg->len;
 
   // this struct helps organizes the test tables below
   struct seg_test_entry {
@@ -178,7 +178,7 @@ enum append_neighbour_result circuit::append_neighbouring_segments(segment* seg,
     if (y < 0 || y >= grid_size + (seg->vert ? 0:1)) 
       continue;
 
-    char result;
+    int result;
     if (test_tab[i].vert)
       result = label_v_segment(x,y,seg->track,next_label);
     else
@@ -190,7 +190,7 @@ enum append_neighbour_result circuit::append_neighbouring_segments(segment* seg,
       exp_list.push(new segment(x,y,seg->track,test_tab[i].vert,seg->len+1));
       spdlog::debug("added len {} at {}, {}",seg->len+1,x,y);
       rc = SOME_ADDED;
-    } else if (result == 'T') {
+    } else if (result == TARGET) {
       // we have reached a terminal connection
       spdlog::info("TARGET FOUND!!");
       rc = TARGET_FOUND;
@@ -275,9 +275,9 @@ bool circuit::route_conn(connection* conn) {
     // mark end segs as targets
     for (int track = 0; track < tracks_per_channel; ++track) {
       if(seg_end_vert)
-        label_v_segment(seg_end_x, seg_end_y, track, 'T');
+        label_v_segment(seg_end_x, seg_end_y, track, TARGET);
       else
-        label_h_segment(seg_end_x, seg_end_y, track, 'T');
+        label_h_segment(seg_end_x, seg_end_y, track, TARGET);
     }
 
     // now loop 
@@ -309,7 +309,7 @@ void circuit::traceback(segment* end, queue<segment*>& exp_list) {
     int track=end->track;
     int i=0;
     if (end->vert) {
-        char n='U', ne='U', nw='U', s='U', se='U', sw='U';
+        int n=UNUSED, ne=UNUSED, nw=UNUSED, s=UNUSED, se=UNUSED, sw=UNUSED;
         n = get_v_segment(x,y-1,track);
         ne = get_h_segment(x-1,y-1,track);
         nw = get_h_segment(x+1,y-1,track);

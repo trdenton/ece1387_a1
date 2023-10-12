@@ -61,10 +61,10 @@ class connection {
 
 class logic_block {
   public:
-    vector<char>* north_conns;
-    vector<char>* south_conns;
-    vector<char>* east_conns;
-    vector<char>* west_conns;
+    vector<int>* north_conns;
+    vector<int>* south_conns;
+    vector<int>* east_conns;
+    vector<int>* west_conns;
     int x;
     int y;
     int tracks_per_channel;
@@ -94,31 +94,31 @@ class logic_block {
         n_east = 0;
       }
 
-      char n_init = '\0';
-      char s_init = '\0';
-      char e_init = '\0';
-      char w_init = '\0';
+      int n_init = UNUSED;
+      int s_init = UNUSED;
+      int e_init = UNUSED;
+      int w_init = UNUSED;
       
       #ifdef UI_TEST_LB_N_CONN
-      n_init = '1';
+      n_init = 1;
       #endif
 
       #ifdef UI_TEST_LB_S_CONN
-      s_init = '1';
+      s_init = 1;
       #endif
 
       #ifdef UI_TEST_LB_E_CONN
-      e_init = '1';
+      e_init = 1;
       #endif
 
       #ifdef UI_TEST_LB_W_CONN
-      w_init = '1';
+      w_init = 1;
       #endif
 
-      north_conns = new vector<char>(n_north, n_init);
-      south_conns = new vector<char>(n_south, s_init);
-      east_conns = new vector<char>(n_east, e_init);
-      west_conns = new vector<char>(n_west, w_init);
+      north_conns = new vector<int>(n_north, n_init);
+      south_conns = new vector<int>(n_south, s_init);
+      east_conns = new vector<int>(n_east, e_init);
+      west_conns = new vector<int>(n_west, w_init);
     }
 
     ~logic_block() {
@@ -128,7 +128,7 @@ class logic_block {
       delete(west_conns);
     }
 
-    vector<char>* get_pin_conns(int pin) {
+    vector<int>* get_pin_conns(int pin) {
       switch(pin) {
         case(1):
           return south_conns;
@@ -260,8 +260,8 @@ class circuit {
     vector<connection*> conns;
     vector<logic_block*> logic_blocks;
     vector<switch_block*> switch_blocks;
-    vector<vector<char>*> h_segs;
-    vector<vector<char>*> v_segs;
+    vector<vector<int>*> h_segs;
+    vector<vector<int>*> v_segs;
 
     circuit(string f);
 
@@ -298,10 +298,10 @@ class circuit {
     void traceback(segment* end, queue<segment*>& exp_list);
     bool route();
 private:
-    char get_h_segment(int x, int y, int t);
-    char get_v_segment(int x, int y, int t);
-    char label_h_segment(int x, int y, int t, char label);
-    char label_v_segment(int x, int y, int t, char label);
+    int get_h_segment(int x, int y, int t);
+    int get_v_segment(int x, int y, int t);
+    int label_h_segment(int x, int y, int t, int label);
+    int label_v_segment(int x, int y, int t, int label);
     void allocate_blocks();
     bool route_conn(connection* conn);
     enum append_neighbour_result append_neighbouring_segments(segment* seg, queue<segment*>& exp_list);
