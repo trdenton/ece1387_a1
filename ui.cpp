@@ -176,8 +176,8 @@ void ui_draw(switch_block* sb) {
     setlinestyle(SOLID);
 	setlinewidth(1);
     float x0, y0, x1, y1;
-    x0 = (2*sb->x+1)*(logic_block_width*1.25);
-    y0 = (2*sb->y+1)*(logic_block_width*1.25);
+    x0 = (2*sb->x-1)*(logic_block_width*1.25);
+    y0 = (2*sb->y-1)*(logic_block_width*1.25);
     x1 = x0 + logic_block_width;
     y1 = y0 + logic_block_width;
     drawrect(x0, y0, x1, y1);
