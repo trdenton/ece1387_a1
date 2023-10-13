@@ -418,7 +418,3 @@ bool circuit::route(bool interactive) {
     }
     return result;
 }
-
-void circuit::map_routing_to_ui() {
-    
-}
