@@ -13,12 +13,13 @@
 using namespace std;
 
 void print_usage() {
-    cout << "Usage: ./a1 [-hv] [-di] -f circuit_file [-p postscript_file]" << endl;
+    cout << "Usage: ./a1 [-hv] [-dis] -f circuit_file [-p postscript_file]" << endl;
     cout << "\t-h: this help message" <<endl;
     cout << "\t-v: print version info" <<endl;
     cout << "\t-f circuit_file: the circuit file (required)" <<endl;
     cout << "\t-d: turn on debug log level" <<endl;
-    cout << "\t-i: enable interactive mode" <<endl;
+    cout << "\t-i: enable interactive (gui) mode" <<endl;
+    cout << "\t-s: step through routing" <<endl;
     cout << "\t-p postscript_file: output image to ps file" <<endl;
 }
 
@@ -38,10 +39,11 @@ int main(int n, char** args) {
     string ps_file = "";
 
     bool interactive = false;
+    bool step = false;
 
     for(;;)
     {
-        switch(getopt(n, args, "vhf:dip:"))
+        switch(getopt(n, args, "vhf:disp:"))
         {
             case 'f':
                 file = optarg;
@@ -58,6 +60,11 @@ int main(int n, char** args) {
             case 'p':
                 ps_file = optarg;
                 continue;
+
+            case 's':
+                step = true;
+                continue;
+
 
             case 'i':
                 interactive = true;
@@ -83,7 +90,7 @@ int main(int n, char** args) {
     print_version();
 
     circuit* circ = new circuit(file);
-    thread t1(route_thread, circ, interactive);
+    thread t1(route_thread, circ, step);
 
     if (!interactive)
         t1.join();

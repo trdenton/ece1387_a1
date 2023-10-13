@@ -306,7 +306,7 @@ bool circuit::route_conn(connection* conn, bool interactive) {
         exp_list.pop();
         if (TARGET_FOUND == append_neighbouring_segments(seg, exp_list)) {
           spdlog::debug("segment: {} len", seg->len);
-          traceback(seg);
+          traceback(seg, interactive);
           break;
         }
     }
@@ -346,7 +346,7 @@ bool circuit::label_segment(segment* a, int label) {
 void circuit::clean_up_unused_segments_1d(vector<vector<int>*>& segs) {
     for(auto h: segs) {
         for(auto& t: *h) {
-            if (t != USED && t != TARGET)
+            if (t != USED && t != TARGET && t != SOURCE)
                 t = UNUSED;
         }
     }
@@ -357,15 +357,15 @@ void circuit::clean_up_unused_segments() {
     clean_up_unused_segments_1d(v_segs);
 }
 
-void circuit::traceback(segment* seg) {
+void circuit::traceback(segment* seg, bool interactive) {
     segment* next;
     while( traceback_find_next(seg,next) > 0  && get_seg_label(seg)!=0) {
-        circuit_wait_for_ui();
+        if (interactive)
+            circuit_wait_for_ui();
         label_segment(seg,USED);
         seg = next;
     }
     // final one
-    label_segment(seg,USED);
     clean_up_unused_segments();
 }
 

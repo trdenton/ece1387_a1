@@ -17,6 +17,7 @@ using namespace std;
 #define TARGET (INT_MAX-1)
 #define USED (INT_MAX-2)
 #define ON_PATH(__X__) (__X__ < USED)
+#define SOURCE (0)
 
 enum append_neighbour_result {
   NONE_ADDED,
@@ -277,7 +278,7 @@ class circuit {
     logic_block* get_logic_block(int x, int y);
     switch_block* get_switch_block(int x, int y);
 
-    void traceback(segment* end);
+    void traceback(segment* end, bool interactive);
     bool route(bool interactive);
     int get_h_segment(int x, int y, int t);
     int get_v_segment(int x, int y, int t);
