@@ -42,3 +42,15 @@ TEST(FileRead, cct4) {
 
   delete(c);
 }
+
+TEST(FileReadDense, cct1_dense) {
+  circuit* c = new circuit("../data/cct1_dense");
+  EXPECT_EQ(c->grid_size, 4);
+  EXPECT_EQ(c->tracks_per_channel, 8);
+
+  // double the logic blocks,
+  // double the connections
+  EXPECT_EQ(c->conns.size(), 22);
+  EXPECT_EQ(c->logic_blocks.size(), 32);
+  EXPECT_EQ(c->switch_blocks.size(), 25);
+}
