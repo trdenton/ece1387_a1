@@ -275,7 +275,7 @@ class circuit {
     logic_block* get_logic_block(int x, int y);
     switch_block* get_switch_block(int x, int y);
 
-    void traceback(segment* end, queue<segment*>& exp_list);
+    void traceback(segment* end);
     bool route(bool interactive);
     int get_h_segment(int x, int y, int t);
     int get_v_segment(int x, int y, int t);

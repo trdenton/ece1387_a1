@@ -325,7 +325,7 @@ bool circuit::route_conn(connection* conn, bool interactive) {
         exp_list.pop();
         if (TARGET_FOUND == append_neighbouring_segments(seg, exp_list)) {
           spdlog::debug("segment: {} len", seg->len);
-          traceback(seg, exp_list);
+          traceback(seg);
           break;
         }
     }
@@ -350,7 +350,7 @@ bool circuit::segment_in_bounds(struct segment& in) {
     return false;
 }
 
-void circuit::traceback(segment* end, queue<segment*>& exp_list) {
+void circuit::traceback(segment* end) {
     // see which neighbour is the lowest cost connection
     int x=end->x;
     int y=end->y;
