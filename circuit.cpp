@@ -32,6 +32,7 @@ void circuit_next_step() {
 }
 
 circuit::circuit(string file) {
+  layers = 1;
   string line;
   ifstream infile (file);
   spdlog::debug("Reading input file {}", file);
@@ -48,19 +49,22 @@ circuit::circuit(string file) {
 
     spdlog::debug("grid size {} tracks per channel {}", grid_size, tracks_per_channel);
 
-    // read until we get the final line of all -1's
-    int read = 1;
-    while (read) {
+    while (true) {
       getline(infile, line);
-      //toks = strotok
       std::stringstream ss(line);
       istream_iterator<std::string> begin(ss);
       istream_iterator<std::string> end;
       vector<string> vstrings(begin, end);
       if (vstrings[0] == "-1")
-        read = 0;
-      else
-        add_connection(new connection(vstrings));
+        break;
+      spdlog::debug("size of vstrings: {}", vstrings.size());
+      connection* c = new connection(vstrings);
+      spdlog::debug("size of vstrings: {}", vstrings.size());
+      if (c->d0 == 1 or c->d1 == 1) {
+        spdlog::debug("detected dense circuit");
+        layers = 2;
+      }
+      add_connection(c);
     }
     string conns = dump_connections();
     spdlog::debug("connection dump:\n{}", conns);
@@ -114,11 +118,13 @@ void circuit::allocate_blocks() {
     v_segs.push_back(new vector<int>(tracks_per_channel, UNUSED));
   }
 
-  for(int i = 0; i < grid_size*grid_size; ++i) {
-    int x = i%grid_size;
-    int y = i/grid_size;
-    logic_block* lb = new logic_block(x, y, grid_size, tracks_per_channel);
-    logic_blocks.push_back(lb);
+  for( int layer = 0; layer < layers; layer++ ) {
+      for (int i = 0; i < grid_size*grid_size; ++i) {
+          int x = i%grid_size;
+          int y = i/grid_size;
+          logic_block* lb = new logic_block(x, y, grid_size, tracks_per_channel);
+          logic_blocks.push_back(lb);
+      }
   }
 
   for(int i = 0; i < (grid_size+1)*(grid_size+1); ++i) {
@@ -501,7 +507,6 @@ int circuit::traceback_find_next(segment* end, segment*& found) {
     };
     vector<segment*> tests = end->get_neighbours();
     vector<circuit_seg_pair*> neighbours;
-
 
     for (auto test: tests) {
         if (segment_in_bounds(*test)) {

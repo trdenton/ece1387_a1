@@ -50,6 +50,7 @@ class connection {
     int x0 = 0, y0 = 0, p0 = 0, x1 = 0, y1 = 0, p1 = 0, d0 = 0, d1 = 0;
     connection(vector<string> toks) {
       if (toks.size() == 6) {
+          spdlog::debug("normal circuit");
           x0 = stoi(toks[0]);
           y0 = stoi(toks[1]);
           p0 = stoi(toks[2]);
@@ -60,6 +61,7 @@ class connection {
           d0 = 0;
           d1 = 0;
       } else if (toks.size() == 8) {
+          spdlog::debug("dense circuit");
           x0 = stoi(toks[0]);
           y0 = stoi(toks[1]);
           d0 = toks[2] == "a" ? 0 : 1;
@@ -69,6 +71,9 @@ class connection {
           y1 = stoi(toks[5]);
           d1 = toks[6] == "a" ? 0 : 1;
           p1 = stoi(toks[7]);
+      } else {
+        spdlog::debug("UNKNOWN: {}", toks.size());
+        exit(1);
       }
     }
 
@@ -255,6 +260,7 @@ class switch_block {
 
 class circuit {
   public:
+    int layers;
     int grid_size, tracks_per_channel;
     vector<connection*> conns;
     vector<logic_block*> logic_blocks;
