@@ -130,8 +130,8 @@ void ui_draw_switch_conns(switch_block* sb, enum ui_draw_conn_mode mode, float x
     float dx = (x1-x0)/float(sb->tracks_per_channel);
     float dy = (y1-y0)/float(sb->tracks_per_channel);
 
-    float xoff = dx/2;
-    float yoff = dy/2;
+    float xoff = dx/2.0;
+    float yoff = dy/2.0;
 
     for(int i = 0; i < sb->tracks_per_channel; ++i) {
         if (mode == TRACK_SEGMENTS_EMPTY) {
@@ -140,10 +140,10 @@ void ui_draw_switch_conns(switch_block* sb, enum ui_draw_conn_mode mode, float x
             drawline(x1, yoff + y0 + i*dy, x1 + length, yoff + y0 + i*dy);
             drawline(x0, yoff + y0 + i*dy, x0 - length, yoff + y0 + i*dy);
         } else if (mode == TRACK_SEGMENTS_USED) {
-            if (sb->segment_used(NORTH, i)) {
+            if (sb->segment_used(SOUTH, i)) {
                 drawline(xoff + x0 + i*dx, y0, xoff + x0 + i*dx, y0 - length);
             }
-            if (sb->segment_used(SOUTH, i)) {
+            if (sb->segment_used(NORTH, i)) {
                 drawline(xoff + x0 + i*dx, y1, xoff + x0 + i*dx, y1 + length);
             }
             if (sb->segment_used(EAST, i)) {
@@ -159,16 +159,16 @@ void ui_draw_switch_conns(switch_block* sb, enum ui_draw_conn_mode mode, float x
                     enum direction dst = static_cast<direction>(dst_int);    
                     if ((dst != src) && sb->direct_connected(src,dst,i)) {
                         float srcx = (src == EAST ? x1 : x0);
-                        float srcy = (src == SOUTH ? y1 : y0);
+                        float srcy = (src == NORTH ? y1 : y0);
                         float dstx = (dst == EAST ? x1 : x0);
-                        float dsty = (dst == SOUTH ? y1 : y0);
+                        float dsty = (dst == NORTH ? y1 : y0);
 
-                        if (src == NORTH || src == SOUTH)
+                        if (src == SOUTH || src == NORTH)
                             srcx += i*dx + xoff;
                         else if (src == WEST || src == EAST)
                             srcy += i*dy + yoff;
 
-                        if (dst == NORTH || dst == SOUTH)
+                        if (dst == SOUTH || dst == NORTH)
                             dstx += i*dx + xoff;
                         else if (dst == WEST || dst == EAST)
                             dsty += i*dy + yoff;

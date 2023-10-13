@@ -387,11 +387,33 @@ void circuit::connect_sb(segment* s1, segment* s2) {
             switch_y = s1->y;
             d = 'H';
             break;
-        case HV:
-            return;
+        case VH:    
+            switch_x = s1->x;
+            switch_y = s2->y;
+            if (s1->y == s2->y) {   //s1 is above s2
+                dst = NORTH;
+            } else {
+                dst = SOUTH;
+            }
+            if (s1->x == s2->x) {
+                src = EAST;
+            } else {
+                src = WEST;
+            }
             break;
-        case VH:
-            return;
+        case HV:
+            switch_x = s2->x;
+            switch_y = s1->y;
+            if (s1->y == s2->y) {   //s1 is above s2
+                dst = NORTH;
+            } else {
+                dst = SOUTH;
+            }
+            if (s1->x == s2->x) {
+                src = EAST;
+            } else {
+                src = WEST;
+            }
             break;
         case VV:
             src = NORTH;
