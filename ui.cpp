@@ -206,7 +206,7 @@ void ui_draw(switch_block* sb) {
     setlinestyle(SOLID);
     setlinewidth(4);
     ui_draw_switch_conns(sb, SWITCH_CONNS, x0, y0, x1, y1, .0);
-    //ui_draw_switch_conns(sb, TRACK_SEGMENTS_USED, x0, y0, x1, y1, logic_block_width);
+    ui_draw_switch_conns(sb, TRACK_SEGMENTS_USED, x0, y0, x1, y1, logic_block_width);
 }
 
 void setline_label(int val){
