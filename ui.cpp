@@ -90,8 +90,10 @@ void ui_draw(logic_block* lb) {
 
     drawline( x1 , y1 - logic_block_width*0.25, x1 + logic_block_width*1.25, y1 - logic_block_width*0.25);
     drawline( x0 , y0 + logic_block_width*0.25, x0 - logic_block_width*1.25, y0 + logic_block_width*0.25);
+}
 
-    // figure out where to draw little connecty dots
+void ui_draw_lb_track_dots(circuit* circ) {
+   /* 
     for(int i = 0; i < lb->tracks_per_channel; ++i) {
 
         if (i < lb->north_conns->size() && (*lb->north_conns)[i] != UNUSED) {
@@ -117,6 +119,7 @@ void ui_draw(logic_block* lb) {
             fillarc(xcen, ycen, 0.5, 0.0, 360.0);
         }
     }
+    */
 }
 
 enum ui_draw_conn_mode {
@@ -314,4 +317,5 @@ void ui_draw(circuit* circ) {
         ui_draw(sb);
     }
     ui_draw_segments(circ);
+    ui_draw_lb_track_dots(circ);
 }

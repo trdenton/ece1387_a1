@@ -498,7 +498,6 @@ bool circuit::route(bool interactive) {
             eventually_routed |= route_conn(conn, track, interactive);
             if (eventually_routed)
                 break;
-            //clean_up_unused_segments(true,true);
         }
         result &= eventually_routed;
     }
