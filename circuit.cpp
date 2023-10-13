@@ -309,6 +309,7 @@ bool circuit::route_conn(connection* conn, int track, bool interactive) {
         exp_list.pop();
         if (TARGET_FOUND == append_neighbouring_segments(seg, exp_list)) {
             traceback(end, interactive);
+            connect_lb(conn, end);
             break;
         }
     }
@@ -431,6 +432,45 @@ void circuit::connect_sb(segment* s1, segment* s2) {
     sb = get_switch_block(switch_x,switch_y);
     sb->connect(src,dst,track);
     
+}
+
+void circuit::connect_lb(connection* conn, segment* seg) {
+    // should just need:
+    //  x0,y0,p0,  x1,y1,p1
+    //  the track we are routing on (available from segment)
+    logic_block* lb0 = get_logic_block(conn->x0, conn->y0); 
+    logic_block* lb1 = get_logic_block(conn->x1, conn->y1); 
+    int track = seg->track;
+
+    // HACK: north and south conns are swapped.  if it gets used somewhere else, fix it.
+    switch(conn->p0) {
+        case 1:
+            (*lb0->north_conns)[(tracks_per_channel-1)-track] = 1;
+        break;
+        case 2:
+            (*lb0->east_conns)[(tracks_per_channel-1) - track] = 1;
+        break;
+        case 3:
+            (*lb0->south_conns)[track] = 1;
+        break;
+        case 4:
+            (*lb0->west_conns)[(tracks_per_channel-1) - track] = 1;
+        break;
+    }
+    switch(conn->p1) {
+        case 1:
+            (*lb1->north_conns)[(tracks_per_channel-1)-track] = 1;
+        break;
+        case 2:
+            (*lb1->east_conns)[(tracks_per_channel-1) - track] = 1;
+        break;
+        case 3:
+            (*lb1->south_conns)[track] = 1;
+        break;
+        case 4:
+            (*lb1->west_conns)[(tracks_per_channel-1) - track] = 1;
+        break;
+    }
 }
 
 void circuit::traceback(segment* seg, bool interactive) {

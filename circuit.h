@@ -296,6 +296,7 @@ private:
     int traceback_find_next(segment* end, segment*& found);
     void clean_up_unused_segments_1d(vector<vector<int>*>& segs, bool clean_target, bool clean_source);
     void connect_sb(segment* a, segment* b);
+    void connect_lb(connection* conn, segment* seg);
 };
 void circuit_wait_for_ui();
 void circuit_next_step();
