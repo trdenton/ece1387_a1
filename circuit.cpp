@@ -343,6 +343,20 @@ bool circuit::label_segment(segment* a, int label) {
     return label_h_segment(a->x,a->y,a->track,label);
 }
 
+void circuit::clean_up_unused_segments_1d(vector<vector<int>*>& segs) {
+    for(auto h: segs) {
+        for(auto& t: *h) {
+            if (t != USED && t != TARGET)
+                t = UNUSED;
+        }
+    }
+}
+
+void circuit::clean_up_unused_segments() {
+    clean_up_unused_segments_1d(h_segs);
+    clean_up_unused_segments_1d(v_segs);
+}
+
 void circuit::traceback(segment* seg) {
     segment* next;
     while( traceback_find_next(seg,next) > 0  && get_seg_label(seg)!=0) {
@@ -350,6 +364,9 @@ void circuit::traceback(segment* seg) {
         label_segment(seg,USED);
         seg = next;
     }
+    // final one
+    label_segment(seg,USED);
+    clean_up_unused_segments();
 }
 
 int circuit::traceback_find_next(segment* end, segment*& found) {

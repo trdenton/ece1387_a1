@@ -283,6 +283,7 @@ class circuit {
     int get_v_segment(int x, int y, int t);
     int get_seg_label(segment* a);
     bool label_segment(segment* a, int label);
+    void clean_up_unused_segments();
 private:
     bool label_h_segment(int x, int y, int t, int label);
     bool label_v_segment(int x, int y, int t, int label);
@@ -292,6 +293,7 @@ private:
     bool segment_in_bounds(struct segment& in);
     void map_routing_to_ui();
     int traceback_find_next(segment* end, segment*& found);
+    void clean_up_unused_segments_1d(vector<vector<int>*>& segs);
 };
 void circuit_wait_for_ui();
 void circuit_next_step();
