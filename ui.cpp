@@ -255,6 +255,8 @@ void ui_draw_h_segment(circuit* circ, int x, int y) {
             label[0]='U';
         else if (val == SOURCE)
             label[0]='S';
+        else if (val == UNUSED)
+            continue;
         else
             snprintf(label,32,"%d",val);
         drawtext((x0+x1)/2, y0 +track*dy, label,10.0);
@@ -278,6 +280,8 @@ void ui_draw_v_segment(circuit* circ, int x, int y) {
             label[0]='U';
         else if (val == SOURCE)
             label[0]='S';
+        else if (val == UNUSED)
+            continue;
         else
             snprintf(label,32,"%d",val);
         drawtext(x0 + track*dx, (y0 + y1)/2, label,10.0);
