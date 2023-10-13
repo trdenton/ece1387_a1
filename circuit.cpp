@@ -402,7 +402,7 @@ void circuit::traceback(segment* end) {
 
     for (auto test: tests) {
         if (segment_in_bounds(*test)) {
-            int val = test->vert ? get_v_segment(test->x, test->y, track) : get_h_segment(test->x, test->y, track);
+            int val = get_seg_label(test);
             if (ON_PATH(val)) {
                 spdlog::debug("neighbour has passed the test: {} @ ({},{} ({}))",val, test->x, test->y, test->vert ? 'V':'H');
                 neighbours.push_back(new circuit_seg_pair(this,test));
