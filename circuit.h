@@ -6,6 +6,7 @@
 #include <queue>
 #include <sstream>
 #include <inttypes.h>
+#include <limits.h>
 #include "spdlog/spdlog.h"
 
 //this is used to instantiate test connections for ui test purposes
