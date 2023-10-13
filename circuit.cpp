@@ -115,8 +115,8 @@ int circuit::get_v_segment(int x, int y, int t) {
 void circuit::allocate_blocks() {
 
   for(int i = 0; i < (grid_size)*(grid_size+1); ++i) {
-    h_segs.push_back(new vector<int>(tracks_per_channel, UNUSED)); // unused
-    v_segs.push_back(new vector<int>(tracks_per_channel, UNUSED));
+    h_segs.push_back(new vector<int>(tracks_per_channel, TARGET)); // unused
+    v_segs.push_back(new vector<int>(tracks_per_channel, TARGET));
   }
 
   for(int i = 0; i < grid_size*grid_size; ++i) {
@@ -292,6 +292,10 @@ bool circuit::route_conn(connection* conn, bool interactive) {
     // initial population - source conns
     for (int track = 0; track < tracks_per_channel; ++track) {
       exp_list.push(new segment(seg_start_x,seg_start_y,track,seg_start_vert,0));
+      if(seg_start_vert)
+        label_v_segment(seg_start_x, seg_start_y, track, 0);
+      else
+        label_h_segment(seg_start_x, seg_start_y, track, 0);
     }
 
     // mark end segs as targets

@@ -237,24 +237,36 @@ void setline_label(int val){
 }
 
 void ui_draw_h_segment(circuit* circ, int x, int y) {
+    float dy = logic_block_width / float(circ->tracks_per_channel);
     float x0 = (2*x)*(logic_block_width*1.25);
     float y0 = (2*y-1)*(logic_block_width*1.25);
-    float dy = logic_block_width / float(circ->tracks_per_channel);
+    float x1 = x0 + logic_block_width;
     for(int track = 0; track < circ->tracks_per_channel; ++track) {
         int val = circ->get_h_segment(x,y,track);
         setline_label(val);
-        drawline(x0,y0 +track*dy + dy/2, x0 + logic_block_width, y0 + track*dy + dy/2);
+        drawline(x0,y0 +track*dy + dy/2, x1, y0 + track*dy + dy/2);
+        char label[32] = {'\0'};
+        label[0]='T';
+        if (val != TARGET)
+            snprintf(label,32,"%d",val);
+        drawtext((x0+x1)/2, y0 +track*dy, label,10.0);
     }
 }
 
 void ui_draw_v_segment(circuit* circ, int x, int y) {
+    float dx = logic_block_width / float(circ->tracks_per_channel);
     float x0 = (2*x-1)*(logic_block_width*1.25);
     float y0 = (2*y)*(logic_block_width*1.25);
-    float dx = logic_block_width / float(circ->tracks_per_channel);
+    float y1 = y0 + logic_block_width;
     for(int track = 0; track < circ->tracks_per_channel; ++track) {
         int val = circ->get_h_segment(x,y,track);
         setline_label(val);
-        drawline(x0 + dx/2 + track*dx, y0, x0 + dx/2 + track*dx, y0 + logic_block_width);
+        drawline(x0 + dx/2 + track*dx, y0, x0 + dx/2 + track*dx, y1);
+        char label[32] = {'\0'};
+        label[0]='T';
+        if (val != TARGET)
+            snprintf(label,32,"%d",val);
+        drawtext(x0 + track*dx, (y0 + y1)/2, label,10.0);
     }
 }
 
