@@ -39,6 +39,7 @@ class segment {
         vert = _vert;
         len = _len;
     }
+    vector<segment*> get_neighbours();
 };
 
 // connection represents a logical connection
@@ -281,6 +282,7 @@ class circuit {
     int get_h_segment(int x, int y, int t);
     int get_v_segment(int x, int y, int t);
     int get_seg_label(segment* a);
+    bool label_segment(segment* a, int label);
 private:
     bool label_h_segment(int x, int y, int t, int label);
     bool label_v_segment(int x, int y, int t, int label);

@@ -152,6 +152,28 @@ switch_block* circuit::get_switch_block(int x, int y) {
     return ret;
 }
 
+vector<segment* > segment::get_neighbours() {
+    vector<segment*> neighbours;
+
+    if (vert) {
+        neighbours.push_back(new segment(x  , y-1, track, 1, UNUSED));
+        neighbours.push_back(new segment(x  , y+1, track, 1, UNUSED));
+        neighbours.push_back(new segment(x-1, y-1, track, 0, UNUSED));
+        neighbours.push_back(new segment(x  , y-1, track, 0, UNUSED));
+        neighbours.push_back(new segment(x-1, y+1, track, 0, UNUSED));
+        neighbours.push_back(new segment(x  , y+1, track, 0, UNUSED));
+    } else {
+        neighbours.push_back(new segment(x-1, y  , track, 0, UNUSED));
+        neighbours.push_back(new segment(x+1, y  , track, 0, UNUSED));
+        neighbours.push_back(new segment(x  , y-1, track, 1, UNUSED));
+        neighbours.push_back(new segment(x+1, y-1, track, 1, UNUSED));
+        neighbours.push_back(new segment(x  , y  , track, 1, UNUSED));
+        neighbours.push_back(new segment(x+1, y  , track, 1, UNUSED));
+    }
+    
+    return neighbours;
+}
+
 enum append_neighbour_result circuit::append_neighbouring_segments(segment* seg, queue<segment*>& exp_list) {
   enum append_neighbour_result rc = NONE_ADDED;
   int next_label = seg->len + 1;
@@ -356,6 +378,11 @@ int circuit::get_seg_label(segment* a) {
     return get_h_segment(a->x,a->y,a->track);
 }
 
+bool circuit::label_segment(segment* a, int label) {
+    if (a->vert)
+        return label_v_segment(a->x,a->y,a->track,label);
+    return label_h_segment(a->x,a->y,a->track,label);
+}
 /*
 segment* circuit::traceback_find_next_seg(segment* seg) {
 }
@@ -377,28 +404,10 @@ void circuit::traceback(segment* end) {
             seg = s;
         }
     };
-    vector<segment*> tests;
+    vector<segment*> tests = end->get_neighbours();
     vector<circuit_seg_pair*> neighbours;
 
-    // mark the end segment as taken
-    if (end->vert) {
-        label_v_segment(x,y,track,USED);
-        tests.push_back(new segment(x  , y-1, track, 1, UNUSED));
-        tests.push_back(new segment(x  , y+1, track, 1, UNUSED));
-        tests.push_back(new segment(x-1, y-1, track, 0, UNUSED));
-        tests.push_back(new segment(x  , y-1, track, 0, UNUSED));
-        tests.push_back(new segment(x-1, y+1, track, 0, UNUSED));
-        tests.push_back(new segment(x  , y+1, track, 0, UNUSED));
-    } else {
-        label_h_segment(x,y,track,USED);
-        tests.push_back(new segment(x-1, y  , track, 0, UNUSED));
-        tests.push_back(new segment(x+1, y  , track, 0, UNUSED));
-        tests.push_back(new segment(x  , y-1, track, 1, UNUSED));
-        tests.push_back(new segment(x+1, y-1, track, 1, UNUSED));
-        tests.push_back(new segment(x  , y  , track, 1, UNUSED));
-        tests.push_back(new segment(x+1, y  , track, 1, UNUSED));
-    }
-    // find min x,y position (and whether thats h or v)
+    label_segment(end,USED);
 
     for (auto test: tests) {
         if (segment_in_bounds(*test)) {
