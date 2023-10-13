@@ -158,8 +158,8 @@ vector<segment* > segment::get_neighbours() {
     if (vert) {
         neighbours.push_back(new segment(x  , y-1, track, 1, UNUSED));
         neighbours.push_back(new segment(x  , y+1, track, 1, UNUSED));
-        neighbours.push_back(new segment(x-1, y-1, track, 0, UNUSED));
-        neighbours.push_back(new segment(x  , y-1, track, 0, UNUSED));
+        neighbours.push_back(new segment(x-1, y  , track, 0, UNUSED));
+        neighbours.push_back(new segment(x  , y  , track, 0, UNUSED));
         neighbours.push_back(new segment(x-1, y+1, track, 0, UNUSED));
         neighbours.push_back(new segment(x  , y+1, track, 0, UNUSED));
     } else {
@@ -178,65 +178,24 @@ enum append_neighbour_result circuit::append_neighbouring_segments(segment* seg,
   enum append_neighbour_result rc = NONE_ADDED;
   int next_label = seg->len + 1;
 
-  // this struct helps organizes the test tables below
-  struct seg_test_entry {
-    int x;
-    int y;
-    int vert;
-  };
-
-  int x = seg->x;
-  int y = seg->y;
-
-  struct seg_test_entry vert_tab[] = {
-    {x  , y-1,  1},
-    {x  , y+1,  1},
-    {x-1, y  ,  0},
-    {x  , y  ,  0},
-    {x-1, y+1,  0},
-    {x  , y+1,  0},
-  };
-
-  struct seg_test_entry hor_tab[] = {
-    {x-1, y  ,  0},
-    {x+1, y  ,  0},
-    {x  , y-1,  1},
-    {x+1, y-1,  1},
-    {x  , y  ,  1},
-    {x+1, y  ,  1},
-  };
-
-  struct seg_test_entry* test_tab = hor_tab;
-  if (seg->vert)
-    test_tab = vert_tab;
+  vector<segment* > neighbours = seg->get_neighbours();
 
   //assumption: hor_tab and vert_tab are the same size
-  for(int i=0; i < sizeof(vert_tab)/sizeof(struct seg_test_entry); ++i) {
-    int x = test_tab[i].x;
-    int y = test_tab[i].y;
-
-    if (x < 0 || x >= grid_size + (seg->vert ? 1:0))
+  for( segment* neighbour : neighbours) {
+    
+    if (!segment_in_bounds(*neighbour))
       continue;
 
-    if (y < 0 || y >= grid_size + (seg->vert ? 0:1)) 
-      continue;
+    int old_val = get_seg_label(neighbour);
 
-    bool result;
-    int old_val;
-    if (test_tab[i].vert) {
-      old_val = get_v_segment(x,y,seg->track);
-      result = label_v_segment(x,y,seg->track,next_label);
-    }
-    else {
-      old_val = get_h_segment(x,y,seg->track);
-      result = label_h_segment(x,y,seg->track,next_label);
-    }
+    bool result = label_segment(neighbour, next_label);
 
     if (result) {
       // we successfully claimed this segment (it was unused)
       // add it to the expansion list
-      exp_list.push(new segment(x,y,seg->track,test_tab[i].vert,next_label));
-      spdlog::debug("added len {} at {}, {}",next_label,x,y);
+      neighbour->len = next_label;
+      exp_list.push(neighbour);
+      spdlog::debug("added len {} at {}, {}",next_label,neighbour->x,neighbour->y);
       rc = SOME_ADDED;
     } else if (old_val == TARGET) {
       // we have reached a terminal connection
