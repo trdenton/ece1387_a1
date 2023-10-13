@@ -280,8 +280,8 @@ class circuit {
     int get_h_segment(int x, int y, int t);
     int get_v_segment(int x, int y, int t);
 private:
-    int label_h_segment(int x, int y, int t, int label);
-    int label_v_segment(int x, int y, int t, int label);
+    bool label_h_segment(int x, int y, int t, int label);
+    bool label_v_segment(int x, int y, int t, int label);
     void allocate_blocks();
     bool route_conn(connection* conn, bool interactive);
     enum append_neighbour_result append_neighbouring_segments(segment* seg, queue<segment*>& exp_list);

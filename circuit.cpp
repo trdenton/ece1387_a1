@@ -36,7 +36,6 @@ circuit::circuit(string file) {
   ifstream infile (file);
   spdlog::debug("Reading input file {}", file);
 
-
   if (infile.is_open()) {
 
     // first line -  grid size 
@@ -78,25 +77,25 @@ circuit::circuit(string file) {
   }
 }
 
-int circuit::label_h_segment(int x, int y, int t, int label) {
+bool circuit::label_h_segment(int x, int y, int t, int label) {
   // h segs: width is grid_size
   vector<int>* cell = h_segs[x + y*grid_size];
   if (get_h_segment(x,y,t)==UNUSED || label == TARGET) {
     (*cell)[t] = label;
-    return label;
+    return true;
   } else {
-    return get_h_segment(x,y,t);
+    return false;
   }
 }
 
-int circuit::label_v_segment(int x, int y, int t, int label) {
+bool circuit::label_v_segment(int x, int y, int t, int label) {
   // v segs: width is grid_size+1
   vector<int>* cell = v_segs[x + y*(grid_size+1)];
   if (get_v_segment(x,y,t)==UNUSED || label == TARGET) {
     (*cell)[t] = label;
-    return label;
+    return true;
   } else {
-    return get_v_segment(x,y,t);
+    return false;
   }
 }
 
@@ -115,8 +114,8 @@ int circuit::get_v_segment(int x, int y, int t) {
 void circuit::allocate_blocks() {
 
   for(int i = 0; i < (grid_size)*(grid_size+1); ++i) {
-    h_segs.push_back(new vector<int>(tracks_per_channel, TARGET)); // unused
-    v_segs.push_back(new vector<int>(tracks_per_channel, TARGET));
+    h_segs.push_back(new vector<int>(tracks_per_channel, UNUSED));
+    v_segs.push_back(new vector<int>(tracks_per_channel, UNUSED));
   }
 
   for(int i = 0; i < grid_size*grid_size; ++i) {
@@ -200,19 +199,24 @@ enum append_neighbour_result circuit::append_neighbouring_segments(segment* seg,
     if (y < 0 || y >= grid_size + (seg->vert ? 0:1)) 
       continue;
 
-    int result;
-    if (test_tab[i].vert)
+    bool result;
+    int old_val;
+    if (test_tab[i].vert) {
+      old_val = get_v_segment(x,y,seg->track);
       result = label_v_segment(x,y,seg->track,next_label);
-    else
+    }
+    else {
+      old_val = get_h_segment(x,y,seg->track);
       result = label_h_segment(x,y,seg->track,next_label);
+    }
 
-    if (result == next_label) {
+    if (result) {
       // we successfully claimed this segment (it was unused)
       // add it to the expansion list
-      exp_list.push(new segment(x,y,seg->track,test_tab[i].vert,seg->len+1));
-      spdlog::debug("added len {} at {}, {}",seg->len+1,x,y);
+      exp_list.push(new segment(x,y,seg->track,test_tab[i].vert,next_label));
+      spdlog::debug("added len {} at {}, {}",next_label,x,y);
       rc = SOME_ADDED;
-    } else if (result == TARGET) {
+    } else if (old_val == TARGET) {
       // we have reached a terminal connection
       spdlog::info("TARGET FOUND!!");
       rc = TARGET_FOUND;
@@ -291,6 +295,7 @@ bool circuit::route_conn(connection* conn, bool interactive) {
 
     // initial population - source conns
     for (int track = 0; track < tracks_per_channel; ++track) {
+      spdlog::debug("Creating 0 track at {} {}",seg_start_x,seg_start_y);
       exp_list.push(new segment(seg_start_x,seg_start_y,track,seg_start_vert,0));
       if(seg_start_vert)
         label_v_segment(seg_start_x, seg_start_y, track, 0);
@@ -313,7 +318,7 @@ bool circuit::route_conn(connection* conn, bool interactive) {
         }
 
         segment* seg = exp_list.front();
-        spdlog::debug("iterate with seg ({} {} {} {})", seg->x, seg->y, seg->track, (seg->vert ? 'V': 'H'));
+        spdlog::debug("iterate with seg ({} {} {} {} {})", seg->x, seg->y, seg->track, seg->len, (seg->vert ? 'V': 'H'));
         exp_list.pop();
         if (TARGET_FOUND == append_neighbouring_segments(seg, exp_list)) {
           spdlog::debug("segment: {} len", seg->len);

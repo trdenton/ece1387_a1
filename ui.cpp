@@ -249,6 +249,8 @@ void ui_draw_h_segment(circuit* circ, int x, int y) {
         label[0]='T';
         if (val != TARGET)
             snprintf(label,32,"%d",val);
+        else
+            spdlog::debug("target at {} {}", x, y);
         drawtext((x0+x1)/2, y0 +track*dy, label,10.0);
     }
 }
@@ -259,19 +261,21 @@ void ui_draw_v_segment(circuit* circ, int x, int y) {
     float y0 = (2*y)*(logic_block_width*1.25);
     float y1 = y0 + logic_block_width;
     for(int track = 0; track < circ->tracks_per_channel; ++track) {
-        int val = circ->get_h_segment(x,y,track);
+        int val = circ->get_v_segment(x,y,track);
         setline_label(val);
         drawline(x0 + dx/2 + track*dx, y0, x0 + dx/2 + track*dx, y1);
         char label[32] = {'\0'};
         label[0]='T';
         if (val != TARGET)
             snprintf(label,32,"%d",val);
+        else
+            spdlog::debug("target at {} {}", x, y);
         drawtext(x0 + track*dx, (y0 + y1)/2, label,10.0);
     }
 }
 
 void ui_draw_segments(circuit* circ) {
-    spdlog::debug("hsegs: {}", circ->h_segs.size());
+    //spdlog::debug("hsegs: {}", circ->h_segs.size());
     for(int i = 0; i < circ->h_segs.size(); ++i) {
         int x = i%(circ->grid_size);
         int y = i/(circ->grid_size);
@@ -281,7 +285,7 @@ void ui_draw_segments(circuit* circ) {
     for(int i = 0; i < circ->v_segs.size(); ++i) {
         int x = i%(circ->grid_size+1);
         int y = i/(circ->grid_size+1);
-        spdlog::debug("draw segs for {}, {}", x, y);
+        //spdlog::debug("draw segs for {}, {}", x, y);
         ui_draw_v_segment(circ,x,y);
     }
 }
