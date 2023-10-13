@@ -314,10 +314,10 @@ bool circuit::route_conn(connection* conn, int track, bool interactive) {
     }
 
     if (exp_list.empty()) {
-        spdlog::error("exp_list empty - no route found");  
+        spdlog::error("could not route design");  
         return false;
     } else {
-        spdlog::info("successfully routed");  
+        spdlog::info("successfully routed design");  
         return true;
     }
 }
@@ -436,7 +436,7 @@ void circuit::connect_sb(segment* s1, segment* s2) {
 void circuit::traceback(segment* seg, bool interactive) {
     segment* next;
     segment* cur = seg;
-    while( traceback_find_next(seg,next) > 0  && get_seg_label(seg)!=0) {
+    while( traceback_find_next(cur,next) > 0  && get_seg_label(cur)!=0) {
         if (interactive)
             circuit_wait_for_ui();
         label_segment(cur,USED);
@@ -447,7 +447,7 @@ void circuit::traceback(segment* seg, bool interactive) {
     label_segment(seg, USED); // this should be the end one
     label_segment(cur, USED); // and this one should be the beginning
     // final one
-    clean_up_unused_segments(false,false);
+    clean_up_unused_segments(true,true);
 }
 
 int circuit::traceback_find_next(segment* end, segment*& found) {
@@ -498,7 +498,7 @@ bool circuit::route(bool interactive) {
             eventually_routed |= route_conn(conn, track, interactive);
             if (eventually_routed)
                 break;
-            clean_up_unused_segments(true,true);
+            //clean_up_unused_segments(true,true);
         }
         result &= eventually_routed;
     }
