@@ -274,26 +274,30 @@ bool circuit::route_conn(connection* conn, bool interactive) {
     int seg_end_y = conn->y1 + pin_to_seg_dy(conn->p1);
     int seg_end_vert = pin_to_seg_vert(conn->p1);
 
+    int chosen_track = 0;
+
     // initial population - source conns
     for (int track = 0; track < tracks_per_channel; ++track) {
-      spdlog::debug("Creating 0 track at {} {}",seg_start_x,seg_start_y);
-      if(seg_start_vert) {
-        label_v_segment(seg_start_x, conn->y0, track, 0);
-        seg_start_y = conn->y0;
-      } else {
-        label_h_segment(conn->x0, seg_start_y, track, 0);
-        seg_start_x = conn->x0;
-      }
-      exp_list.push(new segment(seg_start_x,seg_start_y,track,seg_start_vert,0));
+        if(seg_start_vert) {
+            seg_start_y = conn->y0;
+        } else {
+            seg_start_x = conn->x0;
+        }
+        segment* n = new segment(seg_start_x,seg_start_y,track,seg_start_vert,0);
+        if (label_segment(n,SOURCE)) { // only attempt the first one
+            exp_list.push(n);
+            chosen_track = track;
+            break;
+        } else
+            delete(n);
     }
 
     // mark end segs as targets
-    for (int track = 0; track < tracks_per_channel; ++track) {
-      if(seg_end_vert)
-        label_v_segment(seg_end_x, conn->y1, track, TARGET);
-      else
-        label_h_segment(conn->x1, seg_end_y, track, TARGET);
-    }
+    // has to be same track as source
+    if(seg_end_vert)
+        label_v_segment(seg_end_x, conn->y1, chosen_track, TARGET);
+    else
+        label_h_segment(conn->x1, seg_end_y, chosen_track, TARGET);
 
     // now loop 
     while (!exp_list.empty()) {
@@ -305,18 +309,18 @@ bool circuit::route_conn(connection* conn, bool interactive) {
         spdlog::debug("iterate with seg ({} {} {} {} {})", seg->x, seg->y, seg->track, seg->len, (seg->vert ? 'V': 'H'));
         exp_list.pop();
         if (TARGET_FOUND == append_neighbouring_segments(seg, exp_list)) {
-          spdlog::debug("segment: {} len", seg->len);
-          traceback(seg, interactive);
-          break;
+            spdlog::debug("segment: {} len", seg->len);
+            traceback(seg, interactive);
+            break;
         }
     }
 
     if (exp_list.empty()) {
-      spdlog::error("exp_list empty - no route found");  
-      return false;
+        spdlog::error("exp_list empty - no route found");  
+        return false;
     } else {
-      spdlog::info("successfully routed");  
-      return true;
+        spdlog::info("successfully routed");  
+        return true;
     }
 }
 
