@@ -448,7 +448,7 @@ void circuit::connect_lb(connection* conn, segment* seg) {
             (*lb0->north_conns)[(tracks_per_channel-1)-track] = 1;
         break;
         case 2:
-            (*lb0->east_conns)[(tracks_per_channel-1) - track] = 1;
+            (*lb0->east_conns)[track] = 1;
         break;
         case 3:
             (*lb0->south_conns)[track] = 1;
@@ -462,7 +462,7 @@ void circuit::connect_lb(connection* conn, segment* seg) {
             (*lb1->north_conns)[(tracks_per_channel-1)-track] = 1;
         break;
         case 2:
-            (*lb1->east_conns)[(tracks_per_channel-1) - track] = 1;
+            (*lb1->east_conns)[track] = 1;
         break;
         case 3:
             (*lb1->south_conns)[track] = 1;
