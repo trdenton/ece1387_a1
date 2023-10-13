@@ -145,7 +145,7 @@ logic_block* circuit::get_logic_block(int x, int y) {
 switch_block* circuit::get_switch_block(int x, int y) {
     
     switch_block* ret = nullptr;
-    int index = x + y*grid_size;
+    int index = x + y*(grid_size+1);
     if (index < switch_blocks.size()) {
         ret = switch_blocks[index];
     }
@@ -292,12 +292,15 @@ bool circuit::route_conn(connection* conn, bool interactive) {
             delete(n);
     }
 
+    segment* end;
     // mark end segs as targets
     // has to be same track as source
-    if(seg_end_vert)
-        label_v_segment(seg_end_x, conn->y1, chosen_track, TARGET);
-    else
-        label_h_segment(conn->x1, seg_end_y, chosen_track, TARGET);
+    if(seg_end_vert) {
+        end = new segment(seg_end_x, conn->y1, chosen_track, seg_end_vert, TARGET);
+    } else {
+        end = new segment(conn->x1, seg_end_y, chosen_track, seg_end_vert, TARGET);
+    }
+    label_segment(end, TARGET);
 
     // now loop 
     while (!exp_list.empty()) {
@@ -309,8 +312,7 @@ bool circuit::route_conn(connection* conn, bool interactive) {
         spdlog::debug("iterate with seg ({} {} {} {} {})", seg->x, seg->y, seg->track, seg->len, (seg->vert ? 'V': 'H'));
         exp_list.pop();
         if (TARGET_FOUND == append_neighbouring_segments(seg, exp_list)) {
-            spdlog::debug("segment: {} len", seg->len);
-            traceback(seg, interactive);
+            traceback(end, interactive);
             break;
         }
     }
@@ -361,12 +363,61 @@ void circuit::clean_up_unused_segments() {
     clean_up_unused_segments_1d(v_segs);
 }
 
+void circuit::connect_sb(segment* s1, segment* s2) {
+    // what is the relation betweent the two segments?
+    // there are 4 possible scenarios
+    int config = (((s1->vert)<<1) | s2->vert);
+    const int HH = 0;
+    const int HV = 1;
+    const int VH = 2;
+    const int VV = 3;
+
+    switch_block* sb;
+    enum direction src;
+    enum direction dst;
+    int track = s1->track;
+    int switch_x = 0;
+    int switch_y = 0;
+    char d;
+    switch(config) {
+        case HH:
+            src = EAST;
+            dst = WEST;
+            switch_x = max(s1->x, s2->x);
+            switch_y = s1->y;
+            d = 'H';
+            break;
+        case HV:
+            return;
+            break;
+        case VH:
+            return;
+            break;
+        case VV:
+            src = NORTH;
+            dst = SOUTH;
+            switch_x = s1->x;
+            switch_y = max(s1->y, s2->y);
+            d = 'V';
+            break;
+        default:
+            spdlog::error("bad sb connect config... this shouldnt happen.  See ya");
+            exit(1);
+            break;
+    }
+    spdlog::debug("connecting switch {}, {} {}", switch_x, switch_y, d);
+    sb = get_switch_block(switch_x,switch_y);
+    sb->connect(src,dst,track);
+    
+}
+
 void circuit::traceback(segment* seg, bool interactive) {
     segment* next;
     while( traceback_find_next(seg,next) > 0  && get_seg_label(seg)!=0) {
         if (interactive)
             circuit_wait_for_ui();
         label_segment(seg,USED);
+        connect_sb(seg,next);
         seg = next;
     }
     // final one

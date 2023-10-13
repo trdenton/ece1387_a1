@@ -295,6 +295,7 @@ private:
     void map_routing_to_ui();
     int traceback_find_next(segment* end, segment*& found);
     void clean_up_unused_segments_1d(vector<vector<int>*>& segs);
+    void connect_sb(segment* a, segment* b);
 };
 void circuit_wait_for_ui();
 void circuit_next_step();

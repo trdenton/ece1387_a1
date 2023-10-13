@@ -21,7 +21,6 @@ circuit* circ;
 
 
 void ui_pump(void (*draw)()) {
-    spdlog::debug("PUMP");
     circuit_next_step();
     draw();
 }
@@ -55,7 +54,6 @@ void ui_teardown() {
 }
 
 void ui_drawscreen() {
-    spdlog::debug("ding...");
     clearscreen();
 	set_draw_mode (DRAW_NORMAL);  // Should set this if your program does any XOR drawing in callbacks.
     ui_draw(circ);
@@ -287,7 +285,6 @@ void ui_draw_v_segment(circuit* circ, int x, int y) {
 }
 
 void ui_draw_segments(circuit* circ) {
-    //spdlog::debug("hsegs: {}", circ->h_segs.size());
     for(int i = 0; i < circ->h_segs.size(); ++i) {
         int x = i%(circ->grid_size);
         int y = i/(circ->grid_size);
@@ -297,7 +294,6 @@ void ui_draw_segments(circuit* circ) {
     for(int i = 0; i < circ->v_segs.size(); ++i) {
         int x = i%(circ->grid_size+1);
         int y = i/(circ->grid_size+1);
-        //spdlog::debug("draw segs for {}, {}", x, y);
         ui_draw_v_segment(circ,x,y);
     }
 }
