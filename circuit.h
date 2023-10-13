@@ -47,14 +47,29 @@ class segment {
 // connection represents a logical connection
 class connection {
   public:
-    int x0 = 0, y0 = 0, p0 = 0, x1 = 0, y1 = 0, p1 = 0;
-    connection(int x_0, int y_0, int p_0, int x_1, int y_1, int p_1) {
-      x0 = x_0;
-      y0 = y_0;
-      p0 = p_0;
-      x1 = x_1;
-      y1 = y_1;
-      p1 = p_1;
+    int x0 = 0, y0 = 0, p0 = 0, x1 = 0, y1 = 0, p1 = 0, d0 = 0, d1 = 0;
+    connection(vector<string> toks) {
+      if (toks.size() == 6) {
+          x0 = stoi(toks[0]);
+          y0 = stoi(toks[1]);
+          p0 = stoi(toks[2]);
+          x1 = stoi(toks[3]);
+          y1 = stoi(toks[4]);
+          p1 = stoi(toks[5]);
+          // these are the density bits
+          d0 = 0;
+          d1 = 0;
+      } else if (toks.size() == 8) {
+          x0 = stoi(toks[0]);
+          y0 = stoi(toks[1]);
+          d0 = toks[2] == "a" ? 0 : 1;
+          p0 = stoi(toks[3]);
+
+          x1 = stoi(toks[4]);
+          y1 = stoi(toks[5]);
+          d1 = toks[6] == "a" ? 0 : 1;
+          p1 = stoi(toks[7]);
+      }
     }
 
     string to_string() {

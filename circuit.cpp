@@ -49,22 +49,18 @@ circuit::circuit(string file) {
     spdlog::debug("grid size {} tracks per channel {}", grid_size, tracks_per_channel);
 
     // read until we get the final line of all -1's
-    int x0 = 0, y0 = 0, p0 = 0, x1 = 0, y1 = 0, p1 = 0;
-    int all_neg1 = 0;
-    while (!all_neg1) {
-      infile >> x0;
-      infile >> y0;
-      infile >> p0;
-      infile >> x1;
-      infile >> y1;
-      infile >> p1;
-      spdlog::debug("read in x0 {} y0 {} p0 {} x1 {} y1 {} p1 {}", x0, y0, p0, x1, y1, p1);
-
-      all_neg1 = (x0 == -1) && (y0 == -1) && (p0 == -1) && (x1 == -1) && (y1 == -1) && (p1 == -1);
-      if (!all_neg1) {
-        connection* conn = new connection(x0,y0,p0,x1,y1,p1);
-        add_connection(conn);
-      }
+    int read = 1;
+    while (read) {
+      getline(infile, line);
+      //toks = strotok
+      std::stringstream ss(line);
+      istream_iterator<std::string> begin(ss);
+      istream_iterator<std::string> end;
+      vector<string> vstrings(begin, end);
+      if (vstrings[0] == "-1")
+        read = 0;
+      else
+        add_connection(new connection(vstrings));
     }
     string conns = dump_connections();
     spdlog::debug("connection dump:\n{}", conns);
