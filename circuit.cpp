@@ -361,18 +361,23 @@ void circuit::traceback(segment* end) {
     vector<struct segment*> neighbours;
 
     // mark the end segment as taken
-    if (end->vert)
+    if (end->vert) {
         label_v_segment(x,y,track,USED);
-    else
+        tests.push_back(new segment(x  , y-1, track, 1, UNUSED));
+        tests.push_back(new segment(x  , y+1, track, 1, UNUSED));
+        tests.push_back(new segment(x-1, y-1, track, 0, UNUSED));
+        tests.push_back(new segment(x  , y-1, track, 0, UNUSED));
+        tests.push_back(new segment(x-1, y+1, track, 0, UNUSED));
+        tests.push_back(new segment(x  , y+1, track, 0, UNUSED));
+    } else {
         label_h_segment(x,y,track,USED);
-        
-
-    tests.push_back(new segment(x  , y-1, track, end->vert, UNUSED));
-    tests.push_back(new segment(x-1, y-1, track, 1-end->vert, UNUSED));
-    tests.push_back(new segment(x+1, y-1, track, 1-end->vert, UNUSED));
-    tests.push_back(new segment(x  , y+1, track, end->vert, UNUSED));
-    tests.push_back(new segment(x-1, y+1, track, 1-end->vert, UNUSED));
-    tests.push_back(new segment(x+1, y+1, track, 1-end->vert, UNUSED));
+        tests.push_back(new segment(x-1, y  , track, 0, UNUSED));
+        tests.push_back(new segment(x+1, y  , track, 0, UNUSED));
+        tests.push_back(new segment(x  , y-1, track, 1, UNUSED));
+        tests.push_back(new segment(x+1, y-1, track, 1, UNUSED));
+        tests.push_back(new segment(x  , y  , track, 1, UNUSED));
+        tests.push_back(new segment(x+1, y  , track, 1, UNUSED));
+    }
     // find min x,y position (and whether thats h or v)
 
     for (auto test: tests) {
