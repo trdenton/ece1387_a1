@@ -249,9 +249,9 @@ int pin_to_seg_dy(int pin){
     case 2:
     case 3:
     case 4:
-      return 0;
-    case 1:
       return 1;
+    case 1:
+      return 0;
     default:
       spdlog::error("invalid pin, cannot proceed");
       exit(1);
@@ -296,19 +296,22 @@ bool circuit::route_conn(connection* conn, bool interactive) {
     // initial population - source conns
     for (int track = 0; track < tracks_per_channel; ++track) {
       spdlog::debug("Creating 0 track at {} {}",seg_start_x,seg_start_y);
+      if(seg_start_vert) {
+        label_v_segment(seg_start_x, conn->y0, track, 0);
+        seg_start_y = conn->y0;
+      } else {
+        label_h_segment(conn->x0, seg_start_y, track, 0);
+        seg_start_x = conn->x0;
+      }
       exp_list.push(new segment(seg_start_x,seg_start_y,track,seg_start_vert,0));
-      if(seg_start_vert)
-        label_v_segment(seg_start_x, seg_start_y, track, 0);
-      else
-        label_h_segment(seg_start_x, seg_start_y, track, 0);
     }
 
     // mark end segs as targets
     for (int track = 0; track < tracks_per_channel; ++track) {
       if(seg_end_vert)
-        label_v_segment(seg_end_x, seg_end_y, track, TARGET);
+        label_v_segment(seg_end_x, conn->y1, track, TARGET);
       else
-        label_h_segment(seg_end_x, seg_end_y, track, TARGET);
+        label_h_segment(conn->x1, seg_end_y, track, TARGET);
     }
 
     // now loop 
