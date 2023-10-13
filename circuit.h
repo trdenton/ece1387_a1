@@ -284,17 +284,17 @@ class circuit {
     int get_v_segment(int x, int y, int t);
     int get_seg_label(segment* a);
     bool label_segment(segment* a, int label);
-    void clean_up_unused_segments();
+    void clean_up_unused_segments(bool clean_target, bool clean_source);
 private:
     bool label_h_segment(int x, int y, int t, int label);
     bool label_v_segment(int x, int y, int t, int label);
     void allocate_blocks();
-    bool route_conn(connection* conn, bool interactive);
+    bool route_conn(connection* conn, int track, bool interactive);
     enum append_neighbour_result append_neighbouring_segments(segment* seg, queue<segment*>& exp_list);
     bool segment_in_bounds(struct segment& in);
     void map_routing_to_ui();
     int traceback_find_next(segment* end, segment*& found);
-    void clean_up_unused_segments_1d(vector<vector<int>*>& segs);
+    void clean_up_unused_segments_1d(vector<vector<int>*>& segs, bool clean_target, bool clean_source);
     void connect_sb(segment* a, segment* b);
 };
 void circuit_wait_for_ui();

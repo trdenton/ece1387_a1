@@ -258,7 +258,7 @@ int pin_to_seg_vert(int pin){
   }
 }
 
-bool circuit::route_conn(connection* conn, bool interactive) {
+bool circuit::route_conn(connection* conn, int track, bool interactive) {
     int len = 0;
     queue<segment*> exp_list;
 
@@ -274,31 +274,27 @@ bool circuit::route_conn(connection* conn, bool interactive) {
     int seg_end_y = conn->y1 + pin_to_seg_dy(conn->p1);
     int seg_end_vert = pin_to_seg_vert(conn->p1);
 
-    int chosen_track = 0;
-
     // initial population - source conns
-    for (int track = 0; track < tracks_per_channel; ++track) {
-        if(seg_start_vert) {
-            seg_start_y = conn->y0;
-        } else {
-            seg_start_x = conn->x0;
-        }
-        segment* n = new segment(seg_start_x,seg_start_y,track,seg_start_vert,0);
-        if (label_segment(n,SOURCE)) { // only attempt the first one
-            exp_list.push(n);
-            chosen_track = track;
-            break;
-        } else
-            delete(n);
+    if(seg_start_vert) {
+        seg_start_y = conn->y0;
+    } else {
+        seg_start_x = conn->x0;
+    }
+    segment* n = new segment(seg_start_x,seg_start_y,track,seg_start_vert,0);
+    if (label_segment(n,SOURCE)) { // only attempt the first one
+        exp_list.push(n);
+    } else {
+        delete(n);
+        return false;
     }
 
     segment* end;
     // mark end segs as targets
     // has to be same track as source
     if(seg_end_vert) {
-        end = new segment(seg_end_x, conn->y1, chosen_track, seg_end_vert, TARGET);
+        end = new segment(seg_end_x, conn->y1, track, seg_end_vert, TARGET);
     } else {
-        end = new segment(conn->x1, seg_end_y, chosen_track, seg_end_vert, TARGET);
+        end = new segment(conn->x1, seg_end_y, track, seg_end_vert, TARGET);
     }
     label_segment(end, TARGET);
 
@@ -349,18 +345,22 @@ bool circuit::label_segment(segment* a, int label) {
     return label_h_segment(a->x,a->y,a->track,label);
 }
 
-void circuit::clean_up_unused_segments_1d(vector<vector<int>*>& segs) {
+void circuit::clean_up_unused_segments_1d(vector<vector<int>*>& segs, bool clean_target, bool clean_source) {
     for(auto h: segs) {
         for(auto& t: *h) {
             if (t != USED && t != TARGET && t != SOURCE)
+                t = UNUSED;
+            if (clean_target && t == TARGET)
+                t = UNUSED;
+            if (clean_source && t == SOURCE)
                 t = UNUSED;
         }
     }
 }
 
-void circuit::clean_up_unused_segments() {
-    clean_up_unused_segments_1d(h_segs);
-    clean_up_unused_segments_1d(v_segs);
+void circuit::clean_up_unused_segments(bool clean_target, bool clean_source) {
+    clean_up_unused_segments_1d(h_segs,clean_target,clean_source);
+    clean_up_unused_segments_1d(v_segs,clean_target,clean_source);
 }
 
 void circuit::connect_sb(segment* s1, segment* s2) {
@@ -435,15 +435,19 @@ void circuit::connect_sb(segment* s1, segment* s2) {
 
 void circuit::traceback(segment* seg, bool interactive) {
     segment* next;
+    segment* cur = seg;
     while( traceback_find_next(seg,next) > 0  && get_seg_label(seg)!=0) {
         if (interactive)
             circuit_wait_for_ui();
-        label_segment(seg,USED);
-        connect_sb(seg,next);
-        seg = next;
+        label_segment(cur,USED);
+        connect_sb(cur,next);
+        cur = next;
     }
+
+    label_segment(seg, USED); // this should be the end one
+    label_segment(cur, USED); // and this one should be the beginning
     // final one
-    clean_up_unused_segments();
+    clean_up_unused_segments(false,false);
 }
 
 int circuit::traceback_find_next(segment* end, segment*& found) {
@@ -486,8 +490,17 @@ int circuit::traceback_find_next(segment* end, segment*& found) {
 bool circuit::route(bool interactive) {
 
     bool result = true;
+    int track = 0;
     for (auto conn : conns ) {
-        result &= route_conn(conn, interactive);
+        bool eventually_routed = false;
+        for(int i = 0; i < tracks_per_channel; ++i) {
+            track = (track + 1) % tracks_per_channel;
+            eventually_routed |= route_conn(conn, track, interactive);
+            if (eventually_routed)
+                break;
+            clean_up_unused_segments(true,true);
+        }
+        result &= eventually_routed;
     }
     return result;
 }
