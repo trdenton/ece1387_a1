@@ -339,7 +339,7 @@ bool circuit::route_conn(connection* conn, bool interactive) {
     }
 }
 
-bool circuit::segment_in_bounds(struct segment& in) {
+bool circuit::segment_in_bounds(segment& in) {
     if (in.vert) {
         if (in.x >= 0 && in.x <= grid_size && in.y >=0 && in.y < grid_size)
             return true;
@@ -350,9 +350,16 @@ bool circuit::segment_in_bounds(struct segment& in) {
     return false;
 }
 
-bool min_neighbour_fn(segment* a, segment* b) {
-    return a->len < b->len;
+int circuit::get_seg_label(segment* a) {
+    if (a->vert)
+        return get_v_segment(a->x,a->y,a->track);
+    return get_h_segment(a->x,a->y,a->track);
 }
+
+/*
+segment* circuit::traceback_find_next_seg(segment* seg) {
+}
+*/
 
 void circuit::traceback(segment* end) {
     // see which neighbour is the lowest cost connection
@@ -361,8 +368,17 @@ void circuit::traceback(segment* end) {
     int track=end->track;
     int i=0;
 
-    vector<struct segment*> tests;
-    vector<struct segment*> neighbours;
+    class circuit_seg_pair {
+        public:
+            circuit* circ;
+            segment* seg;
+        circuit_seg_pair(circuit* c, segment* s) {
+            circ = c;
+            seg = s;
+        }
+    };
+    vector<segment*> tests;
+    vector<circuit_seg_pair*> neighbours;
 
     // mark the end segment as taken
     if (end->vert) {
@@ -389,13 +405,15 @@ void circuit::traceback(segment* end) {
             int val = test->vert ? get_v_segment(test->x, test->y, track) : get_h_segment(test->x, test->y, track);
             if (ON_PATH(val)) {
                 spdlog::debug("neighbour has passed the test: {} @ ({},{} ({}))",val, test->x, test->y, test->vert ? 'V':'H');
-                neighbours.push_back(test);
+                neighbours.push_back(new circuit_seg_pair(this,test));
             }
         }
     }
     spdlog::debug("We have found {} neighbours", neighbours.size());
-    segment* smallest = *std::min_element(neighbours.begin(),neighbours.end(),min_neighbour_fn);
-    spdlog::debug("the smallest is {}", smallest->len);
+    circuit_seg_pair* smallest = *std::min_element(neighbours.begin(),neighbours.end(),
+        [](circuit_seg_pair* a, circuit_seg_pair* b){return a->circ->get_seg_label(a->seg) < b->circ->get_seg_label(b->seg);}
+    );
+    spdlog::debug("the smallest is {}", get_seg_label(smallest->seg));
 }
 
 bool circuit::route(bool interactive) {
