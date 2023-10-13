@@ -350,6 +350,10 @@ bool circuit::segment_in_bounds(struct segment& in) {
     return false;
 }
 
+bool min_neighbour_fn(segment* a, segment* b) {
+    return a->len < b->len;
+}
+
 void circuit::traceback(segment* end) {
     // see which neighbour is the lowest cost connection
     int x=end->x;
@@ -390,6 +394,8 @@ void circuit::traceback(segment* end) {
         }
     }
     spdlog::debug("We have found {} neighbours", neighbours.size());
+    segment* smallest = *std::min_element(neighbours.begin(),neighbours.end(),min_neighbour_fn);
+    spdlog::debug("the smallest is {}", smallest->len);
 }
 
 bool circuit::route(bool interactive) {
