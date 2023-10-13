@@ -4,6 +4,7 @@
 #include "spdlog/spdlog.h"
 #include "circuit.h"
 #include "ui.h"
+#include <condition_variable>
 using namespace std;
 
 // Callbacks for event-driven window handling.
@@ -19,10 +20,17 @@ float logic_block_width = 10.0;
 circuit* circ;
 
 
+void ui_pump(void (*draw)()) {
+    spdlog::debug("PUMP");
+    circuit_next_step();
+    draw();
+}
+
 void ui_init(circuit* circuit) {
     circ = circuit;
     spdlog::info("Init UI");
     init_graphics("A1", BLACK);
+    create_button("Proceed","PUMP", ui_pump);
     //init_world(-50.,-50.,150.,150.);
     init_world(-50.,150.,150.,-50.);
     //set_keypress_input(true);
@@ -47,6 +55,7 @@ void ui_teardown() {
 }
 
 void ui_drawscreen() {
+    spdlog::debug("ding...");
     clearscreen();
 	set_draw_mode (DRAW_NORMAL);  // Should set this if your program does any XOR drawing in callbacks.
     ui_draw(circ);

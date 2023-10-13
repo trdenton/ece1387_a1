@@ -8,6 +8,7 @@
 #include "circuit.h"
 #include "easygl/graphics.h"
 #include "ui.h"
+#include <thread>
 
 using namespace std;
 
@@ -26,6 +27,10 @@ void print_version() {
     spdlog::info("Version {}.{}", VERSION_MAJOR, VERSION_MINOR);
     spdlog::info("Commit {}", GIT_COMMIT);
     spdlog::info("Built {}" , __TIMESTAMP__);
+}
+
+void route_thread(circuit* circ, bool interactive) {
+    circ->route(interactive);
 }
 
 int main(int n, char** args) {
@@ -78,16 +83,21 @@ int main(int n, char** args) {
     print_version();
 
     circuit* circ = new circuit(file);
-    circ->route();
+    thread t1(route_thread, circ, interactive);
+
+    if (!interactive)
+        t1.join();
+
     if (interactive) {
         spdlog::info("Entering interactive mode");
         ui_init(circ);
         ui_teardown();
+        t1.join();
     }
     if (ps_file != "") {
         ps_output(circ, ps_file);
     }
-    
+
     spdlog::info("Exiting");
     delete(circ);
     return 0;

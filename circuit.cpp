@@ -7,8 +7,29 @@
 #include <algorithm>
 #include "spdlog/spdlog.h"
 #include "circuit.h"
+#include <thread>
+#include <unistd.h>
+#include <condition_variable>
 
 using namespace std; 
+
+condition_variable cv;
+mutex cv_m;
+int update_sig = 0;
+
+void circuit_wait_for_ui() {
+    unique_lock<std::mutex> lk(cv_m);
+    cv.wait(lk,[]{return update_sig==1;});
+    update_sig=0;
+}
+
+void circuit_next_step() {
+    {
+        lock_guard<mutex> lk(cv_m);
+        update_sig = 1;
+    }
+    cv.notify_one();
+}
 
 circuit::circuit(string file) {
   string line;
@@ -134,7 +155,7 @@ switch_block* circuit::get_switch_block(int x, int y) {
 
 enum append_neighbour_result circuit::append_neighbouring_segments(segment* seg, queue<segment*>& exp_list) {
   enum append_neighbour_result rc = NONE_ADDED;
-  int next_label = seg->len;
+  int next_label = seg->len + 1;
 
   // this struct helps organizes the test tables below
   struct seg_test_entry {
@@ -252,7 +273,7 @@ int pin_to_seg_vert(int pin){
   }
 }
 
-bool circuit::route_conn(connection* conn) {
+bool circuit::route_conn(connection* conn, bool interactive) {
     int len = 0;
     queue<segment*> exp_list;
 
@@ -283,6 +304,9 @@ bool circuit::route_conn(connection* conn) {
 
     // now loop 
     while (!exp_list.empty()) {
+        if (interactive) {
+            circuit_wait_for_ui();
+        }
 
         segment* seg = exp_list.front();
         spdlog::debug("iterate with seg ({} {} {} {})", seg->x, seg->y, seg->track, (seg->vert ? 'V': 'H'));
@@ -345,11 +369,11 @@ void circuit::traceback(segment* end, queue<segment*>& exp_list) {
     spdlog::debug("We have found {} neighbours", neighbours.size());
 }
 
-bool circuit::route() {
+bool circuit::route(bool interactive) {
 
     bool result = true;
     for (auto conn : conns ) {
-        result &= route_conn(conn);
+        result &= route_conn(conn, interactive);
     }
     return result;
 }
