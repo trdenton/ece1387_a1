@@ -342,17 +342,19 @@ bool circuit::label_segment(segment* a, int label) {
         return label_v_segment(a->x,a->y,a->track,label);
     return label_h_segment(a->x,a->y,a->track,label);
 }
-/*
-segment* circuit::traceback_find_next_seg(segment* seg) {
-}
-*/
 
-void circuit::traceback(segment* end) {
+void circuit::traceback(segment* seg) {
+    segment* next;
+    while( traceback_find_next(seg,next) > 0  && get_seg_label(seg)!=0) {
+        circuit_wait_for_ui();
+        label_segment(seg,USED);
+        seg = next;
+    }
+}
+
+int circuit::traceback_find_next(segment* end, segment*& found) {
     // see which neighbour is the lowest cost connection
-    int x=end->x;
-    int y=end->y;
-    int track=end->track;
-    int i=0;
+    // return # of neighbours (to accomodate zero return)
 
     class circuit_seg_pair {
         public:
@@ -366,7 +368,6 @@ void circuit::traceback(segment* end) {
     vector<segment*> tests = end->get_neighbours();
     vector<circuit_seg_pair*> neighbours;
 
-    label_segment(end,USED);
 
     for (auto test: tests) {
         if (segment_in_bounds(*test)) {
@@ -377,11 +378,15 @@ void circuit::traceback(segment* end) {
             }
         }
     }
-    spdlog::debug("We have found {} neighbours", neighbours.size());
-    circuit_seg_pair* smallest = *std::min_element(neighbours.begin(),neighbours.end(),
-        [](circuit_seg_pair* a, circuit_seg_pair* b){return a->circ->get_seg_label(a->seg) < b->circ->get_seg_label(b->seg);}
-    );
-    spdlog::debug("the smallest is {}", get_seg_label(smallest->seg));
+    if (neighbours.size() > 0) {
+        spdlog::debug("We have found {} neighbours", neighbours.size());
+        circuit_seg_pair* smallest = *std::min_element(neighbours.begin(),neighbours.end(),
+                [](circuit_seg_pair* a, circuit_seg_pair* b){return a->circ->get_seg_label(a->seg) < b->circ->get_seg_label(b->seg);}
+                );
+        spdlog::debug("the smallest is {}", get_seg_label(smallest->seg));
+        found = smallest->seg;
+    }
+    return neighbours.size();
 }
 
 bool circuit::route(bool interactive) {

@@ -291,6 +291,7 @@ private:
     enum append_neighbour_result append_neighbouring_segments(segment* seg, queue<segment*>& exp_list);
     bool segment_in_bounds(struct segment& in);
     void map_routing_to_ui();
+    int traceback_find_next(segment* end, segment*& found);
 };
 void circuit_wait_for_ui();
 void circuit_next_step();
