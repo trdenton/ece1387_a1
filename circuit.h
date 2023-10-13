@@ -15,7 +15,8 @@ using namespace std;
 
 #define UNUSED (INT_MAX)
 #define TARGET (INT_MAX-1)
-#define ON_PATH(__X__) (__X__ < TARGET)
+#define USED (INT_MAX-2)
+#define ON_PATH(__X__) (__X__ < USED)
 
 enum append_neighbour_result {
   NONE_ADDED,

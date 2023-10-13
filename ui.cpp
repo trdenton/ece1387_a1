@@ -228,6 +228,11 @@ void setline_label(int val){
             setlinestyle (DASHED);
             setcolor(LIGHTGREY);
             break;
+        case USED:
+            setlinewidth(4);
+            setlinestyle (SOLID);
+            setcolor(MAGENTA);
+            break;
         default:
             setlinewidth(4);
             setlinestyle (SOLID);
@@ -246,11 +251,12 @@ void ui_draw_h_segment(circuit* circ, int x, int y) {
         setline_label(val);
         drawline(x0,y0 +track*dy + dy/2, x1, y0 + track*dy + dy/2);
         char label[32] = {'\0'};
-        label[0]='T';
-        if (val != TARGET)
-            snprintf(label,32,"%d",val);
+        if (val == TARGET)
+            label[0]='T';
+        else if (val == USED)
+            label[0]='U';
         else
-            spdlog::debug("target at {} {}", x, y);
+            snprintf(label,32,"%d",val);
         drawtext((x0+x1)/2, y0 +track*dy, label,10.0);
     }
 }
@@ -266,10 +272,12 @@ void ui_draw_v_segment(circuit* circ, int x, int y) {
         drawline(x0 + dx/2 + track*dx, y0, x0 + dx/2 + track*dx, y1);
         char label[32] = {'\0'};
         label[0]='T';
-        if (val != TARGET)
-            snprintf(label,32,"%d",val);
+        if (val == TARGET)
+            label[0]='T';
+        else if (val == USED)
+            label[0]='U';
         else
-            spdlog::debug("target at {} {}", x, y);
+            snprintf(label,32,"%d",val);
         drawtext(x0 + track*dx, (y0 + y1)/2, label,10.0);
     }
 }
