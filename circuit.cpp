@@ -122,7 +122,7 @@ void circuit::allocate_blocks() {
       for (int i = 0; i < grid_size*grid_size; ++i) {
           int x = i%grid_size;
           int y = i/grid_size;
-          logic_block* lb = new logic_block(x, y, grid_size, tracks_per_channel);
+          logic_block* lb = new logic_block(x, y, layer, grid_size, tracks_per_channel);
           logic_blocks.push_back(lb);
       }
   }

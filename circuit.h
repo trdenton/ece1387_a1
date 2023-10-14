@@ -92,10 +92,12 @@ class logic_block {
     vector<int>* west_conns;
     int x;
     int y;
+    int layer;
     int tracks_per_channel;
-    logic_block(int _x, int _y, int grid_size, int _tracks_per_channel) {
+    logic_block(int _x, int _y, int _layer, int grid_size, int _tracks_per_channel) {
       x = _x;
       y = _y;
+      layer = _layer;
       tracks_per_channel = _tracks_per_channel;
 
       int n_init = UNUSED;
