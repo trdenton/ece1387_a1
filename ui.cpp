@@ -78,8 +78,8 @@ void ui_draw_lb_conns(logic_block* lb) {
     float x0, y0, x1, y1;
     x0 = (2*lb->x)*(logic_block_width*1.25);
     y0 = (2*lb->y)*(logic_block_width*1.25);
-    x0 += float(lb->layer)*logic_block_width*0.125;
-    //y0 -= float(lb->layer)*logic_block_width*0.25;
+    float dx_layer = float(lb->layer)*logic_block_width*0.125;
+    float dy_layer = float(lb->layer)*logic_block_width*0.25;
     x1 = x0 + logic_block_width;
     y1 = y0 + logic_block_width;
 
@@ -87,24 +87,24 @@ void ui_draw_lb_conns(logic_block* lb) {
     for(int i = 0; i < lb->tracks_per_channel; ++i) {
 
         if (i < lb->north_conns->size() && (*lb->north_conns)[i] != UNUSED) {
-            float xcen = x0 + logic_block_width*0.25;
+            float xcen = x0 + logic_block_width*0.25 + dx_layer;
             float ycen = y0 - logic_block_width*0.25 - float(i+0.5)*logic_block_width/float(lb->north_conns->size());
             fillarc(xcen, ycen, 0.5, 0.0, 360.0);
         }
 
         if (i < lb->south_conns->size() && (*lb->south_conns)[i] != UNUSED) {
-            float xcen = x1 - logic_block_width*0.25;
+            float xcen = x1 - logic_block_width*0.25 + dx_layer;
             float ycen = y1 + logic_block_width*0.25 + float(i+0.5)*logic_block_width/float(lb->south_conns->size());
             fillarc(xcen, ycen, 0.5, 0.0, 360.0);
         }
 
         if (i < lb->east_conns->size() && (*lb->east_conns)[i] != UNUSED) {
-            float ycen = y1 - logic_block_width*0.25;
+            float ycen = y1 - logic_block_width*0.25 - dy_layer;
             float xcen = x1 + logic_block_width*0.25 + float(i+0.5)*logic_block_width/float(lb->east_conns->size());
             fillarc(xcen, ycen, 0.5, 0.0, 360.0);
         }
         if (i < lb->west_conns->size() && (*lb->west_conns)[i] != UNUSED) {
-            float ycen = y0 + logic_block_width*0.25;
+            float ycen = y0 + logic_block_width*0.25 - dy_layer;
             float xcen = x0 - logic_block_width*0.25 - float(i+0.5)*logic_block_width/float(lb->west_conns->size());
             fillarc(xcen, ycen, 0.5, 0.0, 360.0);
         }
