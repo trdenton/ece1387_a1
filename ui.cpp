@@ -319,9 +319,6 @@ void ui_draw_segments(circuit* circ) {
 }
 
 
-void ui_draw(connection* conn) {
-}
-
 void ui_draw(circuit* circ) {
     for(auto lb : circ->logic_blocks) {
         ui_draw(lb);
