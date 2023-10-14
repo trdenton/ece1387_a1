@@ -80,7 +80,9 @@ circuit::circuit(string file) {
 bool circuit::label_h_segment(int x, int y, int t, int label) {
   // h segs: width is grid_size
   vector<int>* cell = h_segs[x + y*grid_size];
-  if (get_h_segment(x,y,t)==UNUSED) {
+  int old = get_h_segment(x,y,t);
+  //if (old==UNUSED || (old != TARGET && old != SOURCE && label == USED)) {
+  if (old==UNUSED || label == USED) {
     (*cell)[t] = label;
     return true;
   } else {
@@ -91,7 +93,9 @@ bool circuit::label_h_segment(int x, int y, int t, int label) {
 bool circuit::label_v_segment(int x, int y, int t, int label) {
   // v segs: width is grid_size+1
   vector<int>* cell = v_segs[x + y*(grid_size+1)];
-  if (get_v_segment(x,y,t)==UNUSED) {
+  int old = get_v_segment(x,y,t);
+  //if (old==UNUSED || (old != TARGET && old != SOURCE && label == USED)) {
+  if (old==UNUSED || label == USED) {
     (*cell)[t] = label;
     return true;
   } else {
@@ -318,10 +322,10 @@ bool circuit::route_conn(connection* conn, int track, bool interactive) {
     }
 
     if (exp_list.empty()) {
-        spdlog::error("could not route design");  
+        spdlog::error("could not route connection");  
         return false;
     } else {
-        spdlog::info("successfully routed design");  
+        spdlog::info("successfully routed connection");  
         return true;
     }
 }
@@ -351,13 +355,16 @@ bool circuit::label_segment(segment* a, int label) {
 
 void circuit::clean_up_unused_segments_1d(vector<vector<int>*>& segs, bool clean_target, bool clean_source) {
     for(auto h: segs) {
-        for(auto& t: *h) {
-            if (t != USED && t != TARGET && t != SOURCE)
+        for(int& t: *h) {
+            if ((t != USED) && (t != TARGET) && (t != SOURCE)) {
                 t = UNUSED;
-            if (clean_target && t == TARGET)
+            }
+            else if (clean_target && (t == TARGET)) {
                 t = UNUSED;
-            if (clean_source && t == SOURCE)
+            }
+            else if (clean_source && (t == SOURCE)) {
                 t = UNUSED;
+            }
         }
     }
 }
@@ -490,7 +497,7 @@ void circuit::traceback(segment* seg, bool interactive) {
     label_segment(seg, USED); // this should be the end one
     label_segment(cur, USED); // and this one should be the beginning
     // final one
-    clean_up_unused_segments(true,true);
+    clean_up_unused_segments(false,false);
 }
 
 int circuit::traceback_find_next(segment* end, segment*& found) {
@@ -544,4 +551,37 @@ bool circuit::route(bool interactive) {
         result &= eventually_routed;
     }
     return result;
+}
+
+int circuit::total_segments() {
+    int count = 0;
+    for(int t = 0; t < tracks_per_channel; ++t) {
+        for(int i = 0; i < h_segs.size(); ++i) {
+            int x = i%(grid_size);
+            int y = i/(grid_size);
+            int val = get_h_segment(x,y,t);
+            if (val != UNUSED)
+                count++;
+        }
+
+        for(int i = 0; i < v_segs.size(); ++i) {
+            int x = i%(grid_size+1);
+            int y = i/(grid_size+1);
+            int val = get_v_segment(x,y,t);
+            if (val != UNUSED)
+                count++;
+        }
+    }
+    return count;
+}
+
+int circuit::count_used_segs_1d(vector<vector<int>*>& segs) {
+    int count=0;
+    for(int i = 0; i < segs.size(); ++i) {
+        vector<int>* tracks = segs[i];
+        for(int j = 0; j < (*tracks).size(); ++j) {
+            cerr << (*tracks)[j] << endl;
+        }
+    }
+    return count;
 }

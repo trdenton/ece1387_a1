@@ -309,6 +309,7 @@ class circuit {
     int get_seg_label(segment* a);
     bool label_segment(segment* a, int label);
     void clean_up_unused_segments(bool clean_target, bool clean_source);
+    int total_segments();
 private:
     bool label_h_segment(int x, int y, int t, int label);
     bool label_v_segment(int x, int y, int t, int label);
@@ -319,6 +320,7 @@ private:
     void map_routing_to_ui();
     int traceback_find_next(segment* end, segment*& found);
     void clean_up_unused_segments_1d(vector<vector<int>*>& segs, bool clean_target, bool clean_source);
+    int count_used_segs_1d(vector<vector<int>*>& segs);
     void connect_sb(segment* a, segment* b);
     void connect_lb(connection* conn, segment* seg);
 };

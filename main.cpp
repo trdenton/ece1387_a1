@@ -31,7 +31,11 @@ void print_version() {
 }
 
 void route_thread(circuit* circ, bool interactive) {
-    circ->route(interactive);
+    bool result = circ->route(interactive);
+    if (result)
+        spdlog::info("Successfully routed design");
+    else
+        spdlog::error("Could not route design");
 }
 
 int main(int n, char** args) {
@@ -104,6 +108,7 @@ int main(int n, char** args) {
     if (ps_file != "") {
         ps_output(circ, ps_file);
     }
+    spdlog::info("Total segments used: {}", circ->total_segments());
 
     spdlog::info("Exiting");
     delete(circ);
