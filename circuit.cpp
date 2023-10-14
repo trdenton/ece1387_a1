@@ -497,7 +497,7 @@ void circuit::traceback(segment* seg, bool interactive) {
     label_segment(seg, USED); // this should be the end one
     label_segment(cur, USED); // and this one should be the beginning
     // final one
-    clean_up_unused_segments(false,false);
+    clean_up_unused_segments(true,true);
 }
 
 int circuit::traceback_find_next(segment* end, segment*& found) {
