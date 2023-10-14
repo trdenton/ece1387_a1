@@ -80,7 +80,7 @@ circuit::circuit(string file) {
 bool circuit::label_h_segment(int x, int y, int t, int label) {
   // h segs: width is grid_size
   vector<int>* cell = h_segs[x + y*grid_size];
-  if (get_h_segment(x,y,t)==UNUSED || label == TARGET || label == USED) {
+  if (get_h_segment(x,y,t)==UNUSED) {
     (*cell)[t] = label;
     return true;
   } else {
@@ -91,7 +91,7 @@ bool circuit::label_h_segment(int x, int y, int t, int label) {
 bool circuit::label_v_segment(int x, int y, int t, int label) {
   // v segs: width is grid_size+1
   vector<int>* cell = v_segs[x + y*(grid_size+1)];
-  if (get_v_segment(x,y,t)==UNUSED || label == TARGET || label == USED) {
+  if (get_v_segment(x,y,t)==UNUSED) {
     (*cell)[t] = label;
     return true;
   } else {

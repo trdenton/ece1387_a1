@@ -219,9 +219,10 @@ void ui_draw(switch_block* sb) {
     // draw internal switch connections
 
     setcolor(RED);
-    setlinestyle(SOLID);
-    setlinewidth(4);
+    setlinewidth(2);
+    setlinestyle(DASHED);
     ui_draw_switch_conns(sb, SWITCH_CONNS, x0, y0, x1, y1, .0);
+    setlinestyle(SOLID);
     ui_draw_switch_conns(sb, TRACK_SEGMENTS_USED, x0, y0, x1, y1, logic_block_width);
 }
 
