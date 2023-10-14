@@ -79,7 +79,7 @@ void ui_draw_lb_conns(logic_block* lb) {
     x0 = (2*lb->x)*(logic_block_width*1.25);
     y0 = (2*lb->y)*(logic_block_width*1.25);
     x0 += float(lb->layer)*logic_block_width*0.125;
-    y0 -= float(lb->layer)*logic_block_width*0.25;
+    //y0 -= float(lb->layer)*logic_block_width*0.25;
     x1 = x0 + logic_block_width;
     y1 = y0 + logic_block_width;
 
