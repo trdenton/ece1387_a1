@@ -134,10 +134,11 @@ void circuit::allocate_blocks() {
   }
 }
 
-logic_block* circuit::get_logic_block(int x, int y) {
+logic_block* circuit::get_logic_block(int x, int y, int layer) {
     
     logic_block* ret = nullptr;
-    int index = x + y*grid_size;
+    // layer 1 is appended to the array after layer 0.  it occupies the second half
+    int index = x + y*grid_size + layer*(logic_blocks.size()/2);
     if (index < logic_blocks.size()) {
         ret = logic_blocks[index];
     }
@@ -440,8 +441,8 @@ void circuit::connect_lb(connection* conn, segment* seg) {
     // should just need:
     //  x0,y0,p0,  x1,y1,p1
     //  the track we are routing on (available from segment)
-    logic_block* lb0 = get_logic_block(conn->x0, conn->y0); 
-    logic_block* lb1 = get_logic_block(conn->x1, conn->y1); 
+    logic_block* lb0 = get_logic_block(conn->x0, conn->y0, conn->d0); 
+    logic_block* lb1 = get_logic_block(conn->x1, conn->y1, conn->d1); 
     int track = seg->track;
 
     // HACK: north and south conns are swapped.  if it gets used somewhere else, fix it.

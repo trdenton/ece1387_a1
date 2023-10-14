@@ -299,7 +299,7 @@ class circuit {
       return outstring.str();
     }
 
-    logic_block* get_logic_block(int x, int y);
+    logic_block* get_logic_block(int x, int y, int layer);
     switch_block* get_switch_block(int x, int y);
 
     void traceback(segment* end, bool interactive);
