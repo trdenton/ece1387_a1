@@ -270,7 +270,8 @@ class circuit {
     vector<vector<int>*> h_segs;
     vector<vector<int>*> v_segs;
 
-    circuit(string f);
+    circuit(string f, int force_w);
+    circuit(string f) : circuit(f,0) {};
 
     ~circuit() {
       for (auto* conn : conns){

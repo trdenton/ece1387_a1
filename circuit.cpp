@@ -31,7 +31,7 @@ void circuit_next_step() {
     cv.notify_one();
 }
 
-circuit::circuit(string file) {
+circuit::circuit(string file, int force_w) {
   layers = 1;
   string line;
   ifstream infile (file);
@@ -46,6 +46,9 @@ circuit::circuit(string file) {
 
     getline(infile, line);
     tracks_per_channel = stoi(line);
+    if (force_w > 0)
+        tracks_per_channel = force_w;
+        
 
     spdlog::debug("grid size {} tracks per channel {}", grid_size, tracks_per_channel);
 

@@ -13,13 +13,14 @@
 using namespace std;
 
 void print_usage() {
-    cout << "Usage: ./a1 [-hv] [-dis] -f circuit_file [-p postscript_file]" << endl;
+    cout << "Usage: ./a1 [-hv] [-dis] [-w N] -f circuit_file [-p postscript_file]" << endl;
     cout << "\t-h: this help message" <<endl;
     cout << "\t-v: print version info" <<endl;
     cout << "\t-f circuit_file: the circuit file (required)" <<endl;
     cout << "\t-d: turn on debug log level" <<endl;
     cout << "\t-i: enable interactive (gui) mode" <<endl;
     cout << "\t-s: step through routing" <<endl;
+    cout << "\t-w: force a track width" <<endl;
     cout << "\t-p postscript_file: output image to ps file" <<endl;
 }
 
@@ -44,10 +45,11 @@ int main(int n, char** args) {
 
     bool interactive = false;
     bool step = false;
+    int force_w = 0;
 
     for(;;)
     {
-        switch(getopt(n, args, "vhf:disp:"))
+        switch(getopt(n, args, "vhf:disp:w:"))
         {
             case 'f':
                 file = optarg;
@@ -67,6 +69,11 @@ int main(int n, char** args) {
 
             case 's':
                 step = true;
+                continue;
+
+            case 'w':
+                force_w = stoi(optarg);
+                spdlog::info("Forcing W to {}", force_w);
                 continue;
 
 
@@ -93,7 +100,7 @@ int main(int n, char** args) {
 
     print_version();
 
-    circuit* circ = new circuit(file);
+    circuit* circ = new circuit(file, force_w);
     thread t1(route_thread, circ, step);
 
     if (!interactive)

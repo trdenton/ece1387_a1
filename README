@@ -13,7 +13,26 @@ Compilation:
   cmake ..
   make
 
-run the program with the a1 binary (./build/a1)
 
-E.g.,
-./build/a1 -f ./data/cct1
+To run the unit tests, 
+cd build && ./data_init_tests
+
+
+To view the routing:
+
+Example:
+./build/a1 -f ./data/cct1 -i
+
+specifying -d turns up the debug verbosity
+specifying -s puts the UI into 'step' mode.  Click the "PUMP" button to prompt the router to take more steps
+
+
+Usage: ./a1 [-hv] [-dis] [-w N] -f circuit_file [-p postscript_file]
+	-h: this help message
+	-v: print version info
+	-f circuit_file: the circuit file (required)
+	-d: turn on debug log level
+	-i: enable interactive (gui) mode
+	-s: step through routing
+	-w: force a track width
+	-p postscript_file: output image to ps file
