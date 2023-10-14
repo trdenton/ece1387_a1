@@ -71,7 +71,7 @@ void ui_key_handler(char c) {
 	spdlog::debug("keypress {}",c);
 }
 
-void ui_draw(logic_block* lb) {
+void ui_draw_lb_conns(logic_block* lb) {
     setcolor(lb->layer == 0 ? GREEN : YELLOW);
     setlinestyle(SOLID);
 	setlinewidth(1);
@@ -83,16 +83,6 @@ void ui_draw(logic_block* lb) {
     x1 = x0 + logic_block_width;
     y1 = y0 + logic_block_width;
 
-    drawrect(x0, y0, x1, y1);
-    char label[32] = {'\0'};
-    snprintf(label,32,"(%d,%d)",lb->x,lb->y);
-    drawtext((x0+x1)/2.0, (y0+y1)/2.0, label,10.0);
-    
-    drawline( x1 - logic_block_width*0.25, y1, x1 - logic_block_width*0.25, y1+logic_block_width*1.25 );
-    drawline( x0 + logic_block_width*0.25, y0, x0 + logic_block_width*0.25, y0-logic_block_width*1.25 );
-
-    drawline( x1 , y1 - logic_block_width*0.25, x1 + logic_block_width*1.25, y1 - logic_block_width*0.25);
-    drawline( x0 , y0 + logic_block_width*0.25, x0 - logic_block_width*1.25, y0 + logic_block_width*0.25);
 
     for(int i = 0; i < lb->tracks_per_channel; ++i) {
 
@@ -119,6 +109,30 @@ void ui_draw(logic_block* lb) {
             fillarc(xcen, ycen, 0.5, 0.0, 360.0);
         }
     }
+}
+void ui_draw(logic_block* lb) {
+    setcolor(lb->layer == 0 ? GREEN : YELLOW);
+    setlinestyle(SOLID);
+	setlinewidth(1);
+    float x0, y0, x1, y1;
+    x0 = (2*lb->x)*(logic_block_width*1.25);
+    y0 = (2*lb->y)*(logic_block_width*1.25);
+    x0 += float(lb->layer)*logic_block_width*0.125;
+    y0 -= float(lb->layer)*logic_block_width*0.25;
+    x1 = x0 + logic_block_width;
+    y1 = y0 + logic_block_width;
+
+    drawrect(x0, y0, x1, y1);
+    char label[32] = {'\0'};
+    snprintf(label,32,"(%d,%d)",lb->x,lb->y);
+    drawtext((x0+x1)/2.0, (y0+y1)/2.0, label,10.0);
+    
+    drawline( x1 - logic_block_width*0.25, y1, x1 - logic_block_width*0.25, y1+logic_block_width*1.25 );
+    drawline( x0 + logic_block_width*0.25, y0, x0 + logic_block_width*0.25, y0-logic_block_width*1.25 );
+
+    drawline( x1 , y1 - logic_block_width*0.25, x1 + logic_block_width*1.25, y1 - logic_block_width*0.25);
+    drawline( x0 , y0 + logic_block_width*0.25, x0 - logic_block_width*1.25, y0 + logic_block_width*0.25);
+
 }
 
 enum ui_draw_conn_mode {
@@ -316,4 +330,8 @@ void ui_draw(circuit* circ) {
         ui_draw(sb);
     }
     ui_draw_segments(circ);
+
+    for(auto lb : circ->logic_blocks) {
+        ui_draw_lb_conns(lb);
+    }
 }
